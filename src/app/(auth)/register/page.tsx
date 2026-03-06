@@ -39,7 +39,7 @@ const Register = () => {
                         </div>
                         <Field>
                             <FieldLabel htmlFor="form-email">Email</FieldLabel>
-                            <Input id="form-email" type="email" placeholder="john@example.comhhh" />
+                            <Input id="form-email" type="email" placeholder="john@example.com" />
 
                         </Field>
                         <Field>
