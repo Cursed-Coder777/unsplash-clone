@@ -120,7 +120,32 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.my-masonry-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  /* margin-left: -20px; */
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  /* padding-left: 20px; */
+  background-clip: padding-box;
+}
+
+.my-masonry-grid_column>div {
+  margin: 0 0 20px 20px;
+  /* margin-bottom: 20px; */
+
+  transition: all 0.3s ease;
+}
+
+.my-masonry-grid_column>div:hover {
+  transform: translateY(-5px);
 }

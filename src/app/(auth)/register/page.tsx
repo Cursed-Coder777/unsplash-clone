@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button"
 import {
     Field,
@@ -6,9 +7,17 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+// export const metadata = {
+//     title: 'Sign Up - Unsplash Clone',
+//     description: 'Sign Up to Unsplash clone project',
+//     keywords: 'sign up, unsplash, clone, photos',
 
-
+// }
 const Register = () => {
+    console.log(usePathname())
+
     return (
         <div className="flex w-screen h-full">
             {/* left div */}
@@ -21,8 +30,9 @@ const Register = () => {
             <div className="lg:w-[50%] w-screen flex flex-col items-center mt-32 gap-20" >
                 <div>
                     <h1 className="text-3xl font-bold">Join Unsplash</h1>
-                    <small>Already have an account? <span className="text-gray-400 underline">Login</span></small>
-                </div>
+                    <Link href='/login'><small>Already have an account? <span className="text-gray-400 underline">Login</span></small>
+
+                    </Link></div>
                 <form className="sm:w-[90%] max-w-[500] w-[90%]">
                     <FieldGroup>
 

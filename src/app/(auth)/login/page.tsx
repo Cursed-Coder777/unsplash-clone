@@ -6,11 +6,18 @@ import {
     InputGroupInput,
 } from "@/components/ui/input-group"
 import { EyeOffIcon, Mail } from "lucide-react"
+import Link from "next/link"
 
+export const metadata = {
+    title: 'Login - Unsplash Clone',
+    description: 'Login to Unsplash clone project',
+    keywords: 'login,sign in, unsplash, clone, photos',
+
+}
 
 const Login = () => {
     return (
-        <div className='w-screen flex justify-center mt-32'>
+        <div className='w-full flex justify-center mt-32'>
             <div className='flex flex-col items-center gap-8 w-full'>
                 <div className="text-center">
                     <h1 className='font-bold text-[24px]'>Login</h1>
@@ -53,7 +60,8 @@ const Login = () => {
                 </Button>
                 <div className="border border-gray-300 flex justify-center items-center w-[90%] max-w-[500] h-25">
                     Don&apos;t have an account?
-                    <span className="underline text-gray-400">&nbsp;Join</span>
+                    <Link href='/register'>
+                        <span className="underline text-gray-400">&nbsp;Join</span></Link>
                 </div>
 
             </div>

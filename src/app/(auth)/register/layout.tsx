@@ -1,8 +1,8 @@
-import { ReactNode } from "react"
+import React, { ReactNode } from 'react'
 
 const RegisterPageLayout = ({ children }: { children: ReactNode }) => {
     return (
-        <main>{children} </main>
+        <div>{children}</div>
     )
 }
 
