@@ -16,6 +16,10 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+<<<<<<< HEAD
+=======
+    "react-masonry-css": "^1.0.16",
+>>>>>>> 1ee7b8ba3e1a293612f94db93f7552eab7316046
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
