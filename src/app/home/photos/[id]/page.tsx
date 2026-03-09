@@ -1,6 +1,7 @@
 // app/photo/[id]/page.tsx
-import { Bookmark, Plus, Scissors } from 'lucide-react'
+import { ArrowDown, Bookmark, ChevronDown, Plus, Scissors } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { RiCheckLine } from 'react-icons/ri'
 interface Props {
@@ -117,23 +118,36 @@ export default async function PhotoPage({ params }: Props) {
 
     return (
         <div className="">
-            <div className='flex items-center justify-between  mb-4'>
-                <div className=' flex items-center justify-between gap-2 mb-4'><Image src={photo.user.profile_image.small} alt={photo.user.name} width={34} height={34} className='rounded-full' />
-                <div className='flex flex-col '>
-                    <h1 className='font-medium text-[15px]'>{photo.user.name}</h1>
-                   {photo.user.for_hire && (
-                     <h2 className='text-[12px] text-blue-500 -mt-1 flex items-center gap-1'>Available for hire
-                         <span className='bg-blue-500 text-white rounded-full' ><RiCheckLine size={11} /></span></h2>
-                   )}
-                   </div>
+            <div className='flex items-center justify-between mb-4'>
+                <div className=' flex items-center justify-between gap-2 mb-4'>
+                    <Image src={photo.user.profile_image.small} alt={photo.user.name} width={34} height={34} className='rounded-full' />
+                    <div className='flex flex-col '>
+                        <h1 className='font-medium text-[15px]'>{photo.user.name}</h1>
+                        {photo.user.for_hire && (
+                            <h2 className='text-[12px] text-blue-500 -mt-1 flex items-center gap-1'>Available for hire
+                                <span className='bg-blue-500 text-white rounded-full' ><RiCheckLine size={11} /></span></h2>
+                        )}
+                    </div>
                 </div>
-                <div className='flex items-center'>
-                    <Bookmark size={20} className='text-gray-500 hover:text-black cursor-pointer transition-colors' />
-                    <Plus size={20} className='text-gray-500 hover:text-black cursor-pointer transition-colors ml-4' />
-                    <Scissors size={20} className='text-gray-500 hover:text-black cursor-pointer transition-colors ml-4' />
-                    <button className='ml-4 bg-gray-500 text-white px-3 py-1 rounded-md hover:bg-gray-700 transition-colors'>
-                        Download
+                <div className='flex items-center gap-2'>
+                    <button className=' border border-gray-400 px-3 py-1 rounded-md cursor-pointer transition-colors'>
+                        <Bookmark size={20} />
                     </button>
+                    <button className=' border border-gray-400 px-3 py-1 rounded-md cursor-pointer transition-colors'>
+                        <Plus size={20} />
+                    </button>
+                  
+
+                   <div className='flex'>
+                     <button className='border border-gray-400 px-3 py-0.5 rounded-bl-md rounded-tl-md  transition-colors'>
+                       <Link href={photo.links.download} target='_blank' rel='noopener noreferrer'>
+                        Downlod
+                       </Link>
+                    </button>
+                    <button className=' border border-gray-400 px-3 py-1 rounded-br-md rounded-tr-md  cursor-pointer transition-colors'>
+                        <ChevronDown size={20} />
+                    </button>
+                   </div>
                 </div>
             </div>
             <div className='w-full flex items-center justify-center'>
@@ -142,11 +156,11 @@ export default async function PhotoPage({ params }: Props) {
                     alt={photo.alt_description || 'Photo'}
                     width={photo.width / 7}
                     height={photo.height / 7}
-                    className="rounded-lg "
+                    className="rounded-lg min-w-185  "
                 />
             </div>
 
-            <p>Likes: {photo.likes}</p>
+           
         </div>
     )
 }
