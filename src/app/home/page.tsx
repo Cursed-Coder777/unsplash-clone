@@ -1,7 +1,10 @@
 'use client'
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
+
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import ImageCard from '@/components/myComponents/ImageCard'
+import { ArrowDown, Bookmark, Plus } from 'lucide-react'
+import Image from 'next/image'
+
 
 interface UnsplashPhoto {
     id: string
@@ -28,12 +31,16 @@ const Home = () => {
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
 
-    const searchTerm = useMemo(() => searchParams.get('q') || 'nature', [searchParams])
+    const searchTerm = searchParams.get('q') || 'nature'
 
     const observerRef = useRef<IntersectionObserver | null>(null)
     const loadMoreRef = useRef<HTMLDivElement>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
+    
+    // ✅ Scroll position store karne ke liye
+    const scrollPositionRef = useRef(0)
 
-    const fetchPhotos = useCallback(async (pageNum: number, isNewSearch: boolean = false) => {
+    const fetchPhotos = async (pageNum: number, isNewSearch: boolean = false) => {
         if (isNewSearch) {
             setLoading(true)
             setPhotos([])
@@ -41,11 +48,16 @@ const Home = () => {
             setHasMore(true)
         } else {
             setLoadingMore(true)
+            // ✅ Current scroll position save karo
+            scrollPositionRef.current = window.scrollY
         }
 
         try {
+            // ⏳ 3 second artificial delay
+            await new Promise(resolve => setTimeout(resolve, 3000))
+
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-                || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+                || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
             const response = await fetch(
                 `${baseUrl}/api/unsplash?query=${searchTerm}&page=${pageNum}`,
@@ -63,12 +75,15 @@ const Home = () => {
             if (isNewSearch) {
                 setPhotos(data.results)
             } else {
-                setPhotos(prev => {
-                    // Filter out duplicates just in case
-                    const existingIds = new Set(prev.map(p => p.id))
-                    const newPhotos = data.results.filter(p => !existingIds.has(p.id))
-                    return [...prev, ...newPhotos]
-                })
+                setPhotos(prev => [...prev, ...data.results])
+
+                // ✅ Images load hone ke baad scroll position restore karo
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: scrollPositionRef.current,
+                        behavior: 'auto' // 'smooth' mat karo, warna phir hilega
+                    })
+                }, 100)
             }
 
             setHasMore(pageNum < data.total_pages)
@@ -79,18 +94,18 @@ const Home = () => {
             setLoading(false)
             setLoadingMore(false)
         }
-    }, [searchTerm])
+    }
 
     useEffect(() => {
         fetchPhotos(1, true)
-    }, [fetchPhotos])
+    }, [searchTerm])
 
     const loadMore = useCallback(() => {
         if (loadingMore || !hasMore) return
         const nextPage = page + 1
         setPage(nextPage)
         fetchPhotos(nextPage, false)
-    }, [page, loadingMore, hasMore, fetchPhotos])
+    }, [page, loadingMore, hasMore])
 
     useEffect(() => {
         if (loading) return
@@ -101,12 +116,11 @@ const Home = () => {
                     loadMore()
                 }
             },
-            { threshold: 0.1, rootMargin: '400px' } // Increased margin for smoother loading
+            { threshold: 0.1, rootMargin: '200px' }
         )
 
-        const currentRef = loadMoreRef.current
-        if (currentRef) {
-            observerRef.current.observe(currentRef)
+        if (loadMoreRef.current) {
+            observerRef.current.observe(loadMoreRef.current)
         }
 
         return () => {
@@ -140,14 +154,51 @@ const Home = () => {
     }
 
     return (
-        <div className="flex flex-col container mx-auto px-4">
-            <h1 className="text-2xl font-bold my-4 capitalize">
-                {searchTerm === 'nature' ? 'Home' : searchTerm}
+        <div ref={containerRef} className="flex flex-col container mx-auto px-4">
+            <h1 className="text-2xl font-bold my-4">
+                {searchTerm === 'nature' ? 'Home' : ` ${searchTerm}`}
             </h1>
 
             <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
-                {photos.map((photo) => (
-                    <ImageCard key={photo.id} photo={photo} />
+                {photos?.map((photo, index) => (
+                    <div key={`${photo.id}-${page}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid">
+                        <img
+                            src={photo.urls.small}
+                            alt={photo.alt_description || "Photo"}
+                            className="w-full h-auto transition-transform duration-300 group-hover:scale-105 rounded-lg"
+                            loading="lazy"
+                        />
+
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                            <div className='absolute top-5 right-5 flex gap-3'>
+                                <button className='bg-white w-12 h-8 rounded-lg flex justify-center items-center text-[#767676] hover:text-black transition-colors'>
+                                    <Bookmark size={17} />
+                                </button>
+                                <button className='bg-white w-12 h-8 rounded-lg flex justify-center items-center text-[#767676] hover:text-black transition-colors'>
+                                    <Plus size={17} />
+                                </button>
+                            </div>
+
+                            <div className='absolute bottom-5 right-5 z-10'>
+                                <button className='bg-white w-12 h-8 rounded-lg flex justify-center items-center text-[#767676] hover:bg-red-600 hover:text-white transition-colors'>
+                                    <ArrowDown size={20} />
+                                </button>
+                            </div>
+
+                            <div className="absolute bottom-5 left-0 right-0 p-4 flex items-center gap-2">
+                                <Image
+                                    src={photo.user.profile_image.small}
+                                    alt={photo.user.name}
+                                    width={32}
+                                    height={32}
+                                    className='rounded-full w-8 h-8 object-cover'
+                                />
+                                <p className="text-white text-sm font-medium">
+                                    {photo.user.name}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 ))}
             </div>
 
