@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { ArrowDown, Bookmark, Plus } from 'lucide-react'
 import { memo } from 'react'
+import Link from 'next/link'
 
 interface UnsplashPhoto {
     id: string
@@ -24,7 +25,8 @@ interface ImageCardProps {
 
 const ImageCard = ({ photo }: ImageCardProps) => {
     return (
-        <div className="group relative overflow-hidden mb-4 break-inside-avoid">
+        <div className="group relative overflow-hidden mb-4 break-inside-avoid cursor-zoom-in">
+           <Link href={`home/photos/${photo.id}`} className="block cursor-zoom-in">
             <Image
                 src={photo.urls.small}
                 alt={photo.alt_description || "Photo"}
@@ -63,6 +65,7 @@ const ImageCard = ({ photo }: ImageCardProps) => {
                     </p>
                 </div>
             </div>
+            </Link>
         </div>
     )
 }

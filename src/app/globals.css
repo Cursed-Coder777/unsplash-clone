@@ -48,6 +48,8 @@
 }
 
 :root {
+    --min-width: min(100%, 740px);
+  --max-width: calc(calc(100vh - 205px) * 1.2749368686868687);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
