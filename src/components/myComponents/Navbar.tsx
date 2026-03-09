@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { Focus, Search } from "lucide-react"
 import { useState, useCallback, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 const CATEGORIES = [
     "Featured", "Spring", "Wallpapers", "3D Renders", "Nature",
@@ -11,7 +11,9 @@ const CATEGORIES = [
 ]
 
 const Navbar = () => {
-    const [searchTerm, setSearchTerm] = useState('')
+    const searchParams = useSearchParams()
+    const currentQ = searchParams.get('q') || ''
+    const [searchTerm, setSearchTerm] = useState(currentQ)
     const router = useRouter()
 
     const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>) => {
@@ -21,19 +23,25 @@ const Navbar = () => {
         }
     }, [searchTerm, router])
 
+    const handleCategoryClick = useCallback((category: string) => {
+        const query = category.toLowerCase()
+        setSearchTerm(category)
+        router.push(`/home?q=${encodeURIComponent(query)}`)
+    }, [router])
+
     const categoryList = useMemo(() => (
         <ul className="flex gap-5 text-[15px] text-[#767676] min-w-max">
             {CATEGORIES.map((category) => (
                 <li 
                     key={category} 
                     className="hover:text-black cursor-pointer transition"
-                    onClick={() => router.push(`/home?q=${encodeURIComponent(category.toLowerCase())}`)}
+                    onClick={() => handleCategoryClick(category)}
                 >
                     {category}
                 </li>
             ))}
         </ul>
-    ), [router])
+    ), [handleCategoryClick])
 
     return (
         <nav className="w-full bg-white border-b border-gray-200 fixed top-0 right-0 z-40" style={{ width: 'calc(100% - 3%)' }}>

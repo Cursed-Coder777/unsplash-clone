@@ -1,182 +1,67 @@
-'use client'
+import { Button } from "@/components/ui/button"
+import {
+    Field,
+    FieldGroup,
+    FieldLabel,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import Image from "next/image"
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { Mail, Lock, User, ArrowRight } from 'lucide-react'
 
-export default function RegisterPage() {
-    const router = useRouter()
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    })
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
-        setError('')
-
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match')
-            setLoading(false)
-            return
-        }
-
-        try {
-            // TODO: API call for register
-            console.log('Register:', formData)
-            router.push('/login')
-        } catch (err) {
-            setError('Registration failed')
-        } finally {
-            setLoading(false)
-        }
-    }
-
+const Register = () => {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Create account
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Join our community today
-                    </p>
-                </div>
-
-                {error && (
-                    <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm">
-                        {error}
-                    </div>
-                )}
-
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="space-y-4">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                Full name
-                            </label>
-                            <div className="mt-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                                    <User className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    placeholder="John Doe"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Email address
-                            </label>
-                            <div className="mt-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                                    <Mail className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    placeholder="you@example.com"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <div className="mt-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    required
-                                    minLength={6}
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                                Confirm password
-                            </label>
-                            <div className="mt-1 relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    type="password"
-                                    required
-                                    value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                    className="appearance-none block w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            {loading ? (
-                                <span className="flex items-center">
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Creating account...
-                                </span>
-                            ) : (
-                                <span className="flex items-center">
-                                    Sign up
-                                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                </span>
-                            )}
-                        </button>
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-sm text-gray-600">
-                            Already have an account?{' '}
-                            <Link href="/login" className="font-medium text-green-600 hover:text-green-500">
-                                Sign in
-                            </Link>
-                        </p>
-                    </div>
-                </form>
+        <div className="flex w-screen h-full">
+            {/* left div */}
+            <div className="w-[50%] hidden lg:block">
+                <Image src='https://plus.unsplash.com/premium_photo-1726105464462-627faa14da0b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDF8NnNNVmpUTFNrZVF8fGVufDB8fHx8fA%3D%3D' alt="nature image" height={100} width={100}
+                    style={{ width: '100%', height: '100vh' }}
+                    sizes="50vw" />
             </div>
+            {/* Right div */}
+            <div className="lg:w-[50%] w-screen flex flex-col items-center mt-32 gap-20" >
+                <div>
+                    <h1 className="text-3xl font-bold">Join Unsplash</h1>
+                    <small>Already have an account? <span className="text-gray-400 underline">Login</span></small>
+                </div>
+                <form className="sm:w-[90%] max-w-[500] w-[90%]">
+                    <FieldGroup>
+
+                        <div className="sm:grid sm:grid-cols-2 sm:gap-4 flex flex-col gap-2 ">
+                            <Field>
+                                <FieldLabel htmlFor="form-firstname">First name</FieldLabel>
+                                <Input id="form-firstname" type="text" />
+                            </Field>
+                            <Field>
+                                <FieldLabel htmlFor="form-lastname">Last name</FieldLabel>
+                                <Input id="form-lastname" type="text" />
+                            </Field>
+
+                        </div>
+                        <Field>
+                            <FieldLabel htmlFor="form-email">Email</FieldLabel>
+                            <Input id="form-email" type="email" placeholder="john@example.com" />
+
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="form-username">Username<span className="text-gray-500">(only letters, numbers and underscores)</span></FieldLabel>
+                            <Input id="form-username" type="text" />
+                        </Field>
+                        <Field>
+                            <FieldLabel htmlFor="form-username">Password<span className="text-gray-500"> (min. 8 char)</span></FieldLabel>
+                            <Input id="form-username" type="text" />
+                        </Field>
+                        <Field orientation="vertical" className="flex flex-col items-center justify-center">
+
+                            <Button type="submit" className="sm:w-full max-w-[500] w-full h-10">Join</Button>
+
+                            <small className="text-gray-500  ">By joining, you agree to the <span className="underline">Terms</span> and <span className="underline">Privacy Policy</span>.</small>
+                        </Field>
+
+                    </FieldGroup>
+
+                </form></div>
         </div>
+
     )
 }
+export default Register
