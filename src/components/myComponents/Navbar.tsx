@@ -1,19 +1,39 @@
 'use client'
 import Link from "next/link"
 import { Focus, Search } from "lucide-react"
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
+
+const CATEGORIES = [
+    "Featured", "Spring", "Wallpapers", "3D Renders", "Nature",
+    "Textures", "Film", "Architecture", "Street Photography",
+    "Experimental", "Travel", "People"
+]
 
 const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const router = useRouter()
 
-    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (searchTerm.trim()) {
-            router.push(`/home?q=${encodeURIComponent(searchTerm)}`)
+            router.push(`/home?q=${encodeURIComponent(searchTerm.trim())}`)
         }
-    }
+    }, [searchTerm, router])
+
+    const categoryList = useMemo(() => (
+        <ul className="flex gap-5 text-[15px] text-[#767676] min-w-max">
+            {CATEGORIES.map((category) => (
+                <li 
+                    key={category} 
+                    className="hover:text-black cursor-pointer transition"
+                    onClick={() => router.push(`/home?q=${encodeURIComponent(category.toLowerCase())}`)}
+                >
+                    {category}
+                </li>
+            ))}
+        </ul>
+    ), [router])
 
     return (
         <nav className="w-full bg-white border-b border-gray-200 fixed top-0 right-0 z-40" style={{ width: 'calc(100% - 3%)' }}>
@@ -54,20 +74,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="mt-5 mb-2 overflow-x-auto">
-                    <ul className="flex gap-5 text-[15px] text-[#767676] min-w-max">
-                        <li className="hover:text-black cursor-pointer transition">Featured</li>
-                        <li className="hover:text-black cursor-pointer transition">Spring</li>
-                        <li className="hover:text-black cursor-pointer transition">Wallpapers</li>
-                        <li className="hover:text-black cursor-pointer transition">3D Renders</li>
-                        <li className="hover:text-black cursor-pointer transition">Nature</li>
-                        <li className="hover:text-black cursor-pointer transition">Textures</li>
-                        <li className="hover:text-black cursor-pointer transition">Film</li>
-                        <li className="hover:text-black cursor-pointer transition">Architecture</li>
-                        <li className="hover:text-black cursor-pointer transition">Street Photography</li>
-                        <li className="hover:text-black cursor-pointer transition">Experimental</li>
-                        <li className="hover:text-black cursor-pointer transition">Travel</li>
-                        <li className="hover:text-black cursor-pointer transition">People</li>
-                    </ul>
+                    {categoryList}
                 </div>
             </div>
         </nav>

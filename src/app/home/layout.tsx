@@ -1,4 +1,3 @@
-'use client'
 
 import Navbar from '@/components/myComponents/Navbar'
 import Sidebar from '@/components/myComponents/Sidebar'
