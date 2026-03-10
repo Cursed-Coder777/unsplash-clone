@@ -1,7 +1,9 @@
 'use client'
-import { useEffect, useState, useRef, useCallback } from 'react'
+
+import { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import ImageCard from '@/components/myComponents/ImageCard'
+import Image from 'next/image'
+import { Bookmark, Plus, Download, Heart } from 'lucide-react'
 
 interface UnsplashPhoto {
     id: string
@@ -99,7 +101,7 @@ interface UnsplashPhoto {
 const Home = () => {
     const searchParams = useSearchParams()
     const q = searchParams.get('q') || 'nature'
-    
+
     const [photos, setPhotos] = useState<UnsplashPhoto[]>([])
     const [loading, setLoading] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
@@ -110,7 +112,7 @@ const Home = () => {
     const observerRef = useRef<IntersectionObserver | null>(null)
     const loadMoreRef = useRef<HTMLDivElement>(null)
 
-    const fetchPhotos = useCallback(async (pageNum: number, isNewSearch: boolean = false) => {
+    const fetchPhotos = async (pageNum: number, isNewSearch: boolean = false) => {
         if (isNewSearch) {
             setLoading(true)
             setError('')
@@ -119,24 +121,19 @@ const Home = () => {
         }
 
         try {
-            const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
             const response = await fetch(
-                `${baseUrl}/api/unsplash?query=${encodeURIComponent(q)}&page=${pageNum}`,
+                `/api/unsplash?query=${encodeURIComponent(q)}&page=${pageNum}`,
                 { cache: 'no-store' }
             )
 
             if (!response.ok) throw new Error('Failed to fetch photos')
 
-            const data: { results: UnsplashPhoto[]; total_pages: number } = await response.json()
+            const data = await response.json()
 
             if (isNewSearch) {
                 setPhotos(data.results || [])
             } else {
-                setPhotos(prev => {
-                    const existingIds = new Set(prev.map(p => p.id))
-                    const newPhotos = (data.results || []).filter(p => !existingIds.has(p.id))
-                    return [...prev, ...newPhotos]
-                })
+                setPhotos(prev => [...prev, ...(data.results || [])])
             }
 
             setHasMore(pageNum < data.total_pages)
@@ -146,22 +143,20 @@ const Home = () => {
             setLoading(false)
             setLoadingMore(false)
         }
-    }, [q])
+    }
 
-    // Pehli baar aur search term badalne par reset karo
     useEffect(() => {
         setPage(1)
         fetchPhotos(1, true)
-    }, [q, fetchPhotos])
+    }, [q])
 
-    const loadMore = useCallback(() => {
+    const loadMore = () => {
         if (loadingMore || !hasMore || loading) return
         const nextPage = page + 1
         setPage(nextPage)
         fetchPhotos(nextPage, false)
-    }, [page, loadingMore, hasMore, loading, fetchPhotos])
+    }
 
-    // Infinite Scroll Observer
     useEffect(() => {
         if (loading) return
 
@@ -174,11 +169,10 @@ const Home = () => {
             { threshold: 0.1, rootMargin: '400px' }
         )
 
-        const currentRef = loadMoreRef.current
-        if (currentRef) observerRef.current.observe(currentRef)
+        if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current)
 
         return () => observerRef.current?.disconnect()
-    }, [loading, hasMore, loadingMore, loadMore])
+    }, [loading, hasMore, loadingMore, page, q])
 
     if (error) {
         return (
@@ -190,7 +184,7 @@ const Home = () => {
     }
 
     return (
-        <div className="flex flex-col container mx-auto px-4">
+        <div className="flex flex-col container mx-auto px-4 mt-30">
             <h1 className="text-2xl font-bold my-4 capitalize">
                 {q === 'nature' ? 'Editorial' : q}
             </h1>
@@ -203,8 +197,44 @@ const Home = () => {
                 </div>
             ) : (
                 <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
-                    {photos.map((photo) => (
-                        <ImageCard key={photo.id} photo={photo} />
+                    {photos.map((photo, index) => (
+                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid rounded-lg">
+                            <img
+                                src={photo.urls.small}
+                                alt={photo.alt_description || "Photo"}
+                                className="w-full h-auto transition-transform duration-300 group-hover:scale-105 rounded-lg"
+                                loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                                <div className='absolute top-5 right-5 flex gap-3'>
+                                    <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
+                                        <Bookmark size={16} />
+                                    </button>
+                                    <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
+                                        <Plus size={16} />
+                                    </button>
+                                </div>
+                                <div className='absolute bottom-5 right-5'>
+                                    <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
+                                        <Download size={18} />
+                                    </button>
+                                </div>
+                                <div className="absolute bottom-5 left-5 flex items-center gap-2">
+                                    {photo.user.profile_image?.small && (
+                                        <Image
+                                            src={photo.user.profile_image.small}
+                                            alt={photo.user.name}
+                                            width={32}
+                                            height={32}
+                                            className='rounded-full w-8 h-8 object-cover border border-white/20'
+                                        />
+                                    )}
+                                    <p className="text-white text-sm font-medium">
+                                        {photo.user.name}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

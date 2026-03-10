@@ -1,7 +1,8 @@
 'use client'
+
 import Link from "next/link"
 import { Focus, Search } from "lucide-react"
-import { useState, useCallback, useMemo } from "react"
+import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 const CATEGORIES = [
@@ -16,32 +17,18 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState(currentQ)
     const router = useRouter()
 
-    const handleSearch = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (searchTerm.trim()) {
             router.push(`/home?q=${encodeURIComponent(searchTerm.trim())}`)
         }
-    }, [searchTerm, router])
+    }
 
-    const handleCategoryClick = useCallback((category: string) => {
+    const handleCategoryClick = (category: string) => {
         const query = category.toLowerCase()
         setSearchTerm(category)
         router.push(`/home?q=${encodeURIComponent(query)}`)
-    }, [router])
-
-    const categoryList = useMemo(() => (
-        <ul className="flex gap-5 text-[15px] text-[#767676] min-w-max">
-            {CATEGORIES.map((category) => (
-                <li 
-                    key={category} 
-                    className="hover:text-black cursor-pointer transition"
-                    onClick={() => handleCategoryClick(category)}
-                >
-                    {category}
-                </li>
-            ))}
-        </ul>
-    ), [handleCategoryClick])
+    }
 
     return (
         <nav className="w-full bg-white border-b border-gray-200 fixed top-0 right-0 z-40" style={{ width: 'calc(100% - 3%)' }}>
@@ -82,7 +69,17 @@ const Navbar = () => {
                 </div>
 
                 <div className="mt-5 mb-2 overflow-x-auto">
-                    {categoryList}
+                    <ul className="flex gap-5 text-[15px] text-[#767676] min-w-max">
+                        {CATEGORIES.map((category) => (
+                            <li
+                                key={category}
+                                className="hover:text-black cursor-pointer transition"
+                                onClick={() => handleCategoryClick(category)}
+                            >
+                                {category}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             </div>
         </nav>
