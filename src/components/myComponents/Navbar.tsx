@@ -12,7 +12,7 @@ const CATEGORIES = [
 ]
 
 const Navbar = () => {
-    const searchParams = useSearchParams()
+    const searchParams = useSearchParams() // ye hook URL ke search parameters ko access karne ke liye use hota hai
     const currentQ = searchParams.get('q') || ''
     const [searchTerm, setSearchTerm] = useState(currentQ)
     const router = useRouter()
