@@ -1,6 +1,7 @@
 'use client';
 import Navbar from '@/components/myComponents/Navbar';
 import Sidebar from '@/components/myComponents/Sidebar';
+import { Suspense } from 'react';
 
 export default function HomeLayout({
     children,
@@ -16,7 +17,9 @@ export default function HomeLayout({
 
             {/* Main content - with left margin for sidebar */}
             <div className="flex flex-col w-full ml-[3%]">
-                <Navbar />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <Navbar />
+                </Suspense>
                 <main className="flex-1 p-6">
                     {children}
                 </main>
