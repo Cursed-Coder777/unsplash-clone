@@ -8,6 +8,7 @@ export default function HomeLayout({
 }: {
     children: React.ReactNode;
 }) {
+   
     return (
         <div className="flex min-h-screen bg-white">
             {/* Sidebar - fixed width */}

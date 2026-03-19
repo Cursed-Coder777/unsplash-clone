@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
-const Home = () => {
+const Home = async () => {
+
   redirect('/home')
   return(
     <div className='flex justify-center items-center h-screen'>

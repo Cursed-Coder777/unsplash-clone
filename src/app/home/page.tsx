@@ -186,26 +186,26 @@ const Home = () => {
     return (
         <div className="flex flex-col container mx-auto px-4 mt-30">
             <h1 className="text-2xl font-bold my-4 capitalize">
-                {q === 'nature' ? 'Editorial' : q}
+                {q}
             </h1>
 
             {loading && photos.length === 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className="bg-gray-100 rounded-lg aspect-[3/4] animate-pulse"></div>
+                        <div key={i} className="bg-gray-100 aspect-[3/4] animate-pulse"></div>
                     ))}
                 </div>
             ) : (
                 <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
                     {photos.map((photo, index) => (
-                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid rounded-lg">
+                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid ">
                             <img
                                 src={photo.urls.small}
                                 alt={photo.alt_description || "Photo"}
-                                className="w-full h-auto transition-transform duration-300 group-hover:scale-105 rounded-lg"
+                                className="w-full h-auto transition-transform duration-300"
                                 loading="lazy"
                             />
-                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity ">
                                 <div className='absolute top-5 right-5 flex gap-3'>
                                     <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
                                         <Bookmark size={16} />
