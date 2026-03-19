@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-
+import Footer from '@/components/myComponents/Footer';
+import { RiUnsplashFill } from 'react-icons/ri';
+import Link from 'next/link';
 interface UserData {
     id: string;
     firstName: string;
@@ -69,7 +71,13 @@ export default function AccountForm({ user }: { user: UserData }) {
     };
 
     return (
-        <div className="max-w-[1140px] mx-auto px-4 py-8 md:py-12 md:flex font-sans">
+     <div>
+        <nav>
+             <Link href='/home'>
+                <RiUnsplashFill size={48} className='text-black cursor-pointer transition-colors m-2' />
+                </Link>
+        </nav>
+           <div className="max-w-[1440px] mx-auto px-2 py-8 md:py-12 md:flex font-sans">
             {/* Sidebar */}
             <div className="w-full md:w-[280px] pr-8 mb-8 md:mb-0 flex-shrink-0">
                 <h3 className="font-bold text-[18px] mb-5 text-[#111]">Account settings</h3>
@@ -83,7 +91,7 @@ export default function AccountForm({ user }: { user: UserData }) {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 max-w-[700px]">
+            <div className="flex-1 max-w-[1100px]">
                 {/* Title & Badge */}
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-[24px] font-bold text-[#111]">Edit profile</h1>
@@ -340,7 +348,10 @@ export default function AccountForm({ user }: { user: UserData }) {
                         </button>
                     </div>
                 </form>
+         
             </div>
         </div>
+        <Footer />
+     </div>
     );
 }

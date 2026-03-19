@@ -198,7 +198,7 @@ const Home = () => {
             ) : (
                 <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
                     {photos.map((photo, index) => (
-                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid ">
+                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid cursor-pointer ">
                             <img
                                 src={photo.urls.small}
                                 alt={photo.alt_description || "Photo"}
@@ -207,15 +207,15 @@ const Home = () => {
                             />
                             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity ">
                                 <div className='absolute top-5 right-5 flex gap-3'>
-                                    <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
+                                    <button className='bg-white/80 cursor-pointer backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
                                         <Bookmark size={16} />
                                     </button>
-                                    <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
+                                    <button className='bg-white/80 cursor-pointer backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
                                         <Plus size={16} />
                                     </button>
                                 </div>
                                 <div className='absolute bottom-5 right-5'>
-                                    <button className='bg-white/80 backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
+                                    <button className='bg-white/80 cursor-pointer backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
                                         <Download size={18} />
                                     </button>
                                 </div>
