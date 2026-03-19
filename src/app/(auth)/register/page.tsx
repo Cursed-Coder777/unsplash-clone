@@ -1,67 +1,174 @@
-import { Button } from "@/components/ui/button"
-import {
-    Field,
-    FieldGroup,
-    FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import Image from "next/image"
+'use client'
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import Image from "next/image";
+import Link from 'next/link';
 
 const Register = () => {
+    const router = useRouter();
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        username: '',
+        password: '',
+    });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.id]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Registration failed');
+            }
+
+            router.push('/home');
+        } catch (err: Error | any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <div className="flex w-screen h-full">
+        <div className="flex w-screen min-h-screen">
             {/* left div */}
             <div className="w-[50%] hidden lg:block">
-                <Image src='https://plus.unsplash.com/premium_photo-1726105464462-627faa14da0b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDF8NnNNVmpUTFNrZVF8fGVufDB8fHx8fA%3D%3D' alt="nature image" height={100} width={100}
-                    style={{ width: '100%', height: '100vh' }}
-                    sizes="50vw" />
+                <Image 
+                    src='https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=1170&auto=format&fit=crop' 
+                    alt="Office" 
+                    height={1000} 
+                    width={1000}
+                    style={{ width: '100%', height: '100vh', objectFit: 'cover' }}
+                />
             </div>
+            
             {/* Right div */}
-            <div className="lg:w-[50%] w-screen flex flex-col items-center mt-32 gap-20" >
-                <div>
+            <div className="lg:w-[50%] w-full flex flex-col items-center mt-10 lg:mt-20 px-4">
+                <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold">Join Unsplash</h1>
-                    <small>Already have an account? <span className="text-gray-400 underline">Login</span></small>
+                    <p className="text-sm">
+                        Already have an account?{' '}
+                        <Link href="/login" className="text-gray-400 underline">
+                            Login
+                        </Link>
+                    </p>
                 </div>
-                <form className="sm:w-[90%] max-w-[500] w-[90%]">
-                    <FieldGroup>
 
-                        <div className="sm:grid sm:grid-cols-2 sm:gap-4 flex flex-col gap-2 ">
+                {error && (
+                    <div className="w-full max-w-[500px] bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-4">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="w-full max-w-[500px]">
+                    <FieldGroup className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Field>
-                                <FieldLabel htmlFor="form-firstname">First name</FieldLabel>
-                                <Input id="form-firstname" type="text" />
+                                <FieldLabel htmlFor="firstName">First name</FieldLabel>
+                                <Input 
+                                    id="firstName" 
+                                    type="text" 
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </Field>
                             <Field>
-                                <FieldLabel htmlFor="form-lastname">Last name</FieldLabel>
-                                <Input id="form-lastname" type="text" />
+                                <FieldLabel htmlFor="lastName">Last name</FieldLabel>
+                                <Input 
+                                    id="lastName" 
+                                    type="text" 
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </Field>
-
                         </div>
+
                         <Field>
-                            <FieldLabel htmlFor="form-email">Email</FieldLabel>
-                            <Input id="form-email" type="email" placeholder="john@example.com" />
-
+                            <FieldLabel htmlFor="email">Email</FieldLabel>
+                            <Input 
+                                id="email" 
+                                type="email" 
+                                placeholder="john@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
                         </Field>
+
                         <Field>
-                            <FieldLabel htmlFor="form-username">Username<span className="text-gray-500">(only letters, numbers and underscores)</span></FieldLabel>
-                            <Input id="form-username" type="text" />
+                            <FieldLabel htmlFor="username">
+                                Username <span className="text-gray-500">(only letters, numbers and underscores)</span>
+                            </FieldLabel>
+                            <Input 
+                                id="username" 
+                                type="text"
+                                pattern="[a-zA-Z0-9_]+"
+                                title="Only letters, numbers and underscores allowed"
+                                value={formData.username}
+                                onChange={handleChange}
+                                required
+                            />
                         </Field>
+
                         <Field>
-                            <FieldLabel htmlFor="form-username">Password<span className="text-gray-500"> (min. 8 char)</span></FieldLabel>
-                            <Input id="form-username" type="text" />
+                            <FieldLabel htmlFor="password">
+                                Password <span className="text-gray-500">(min. 8 char)</span>
+                            </FieldLabel>
+                            <Input 
+                                id="password" 
+                                type="password"
+                                minLength={8}
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
                         </Field>
-                        <Field orientation="vertical" className="flex flex-col items-center justify-center">
 
-                            <Button type="submit" className="sm:w-full max-w-[500] w-full h-10">Join</Button>
+                        <Field orientation="vertical" className="flex flex-col items-center justify-center mt-6">
+                            <Button 
+                                type="submit" 
+                                className="w-full h-10"
+                                disabled={loading}
+                            >
+                                {loading ? 'Creating account...' : 'Join'}
+                            </Button>
 
-                            <small className="text-gray-500  ">By joining, you agree to the <span className="underline">Terms</span> and <span className="underline">Privacy Policy</span>.</small>
+                            <small className="text-gray-500 mt-4 text-center">
+                                By joining, you agree to the <span className="underline cursor-pointer">Terms</span> and{' '}
+                                <span className="underline cursor-pointer">Privacy Policy</span>.
+                            </small>
                         </Field>
-
                     </FieldGroup>
-
-                </form></div>
+                </form>
+            </div>
         </div>
+    );
+};
 
-    )
-}
-export default Register
+export default Register;

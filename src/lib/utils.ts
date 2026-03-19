@@ -20,6 +20,10 @@ export const generateToken = (userId: string) => {
         { userId },
         process.env.JWT_SECRET as string,  // 👈 Type assertion
         { expiresIn: '7d' }
+        // explain above line: This line generates a JWT token using the jsonwebtoken library. It takes three arguments:
+        // 1. Payload: An object containing the userId, which will be encoded in the token.
+        // 2. Secret Key: The secret key used to sign the token, retrieved from environment variables (process.env.JWT_SECRET). The 'as string' is a TypeScript type assertion to ensure that the value is treated as a string.
+        // 3. Options: An object specifying additional options for the token, in this case, setting an expiration time of 7 days (expiresIn: '7d').
     );
 };
 
