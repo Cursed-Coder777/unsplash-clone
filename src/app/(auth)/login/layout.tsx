@@ -7,7 +7,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
     return (
         <div className="flex">
             <div className="w-[3%]"> <Sidebar /></div>
-            <div className="flex flex-col w-[97%]">
+            <div className="flex flex-col w-[95%] overflow-hidden">
                 <Suspense fallback={<div>Loading...</div>}>
                     <Navbar />
                 </Suspense>
