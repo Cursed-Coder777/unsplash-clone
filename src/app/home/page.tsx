@@ -188,7 +188,7 @@ const Home = () => {
     }
 
     return (
-        <div className="flex flex-col container mx-auto px-4 mt-30">
+        <div className="flex flex-col container mx-auto px-4 ">
             <h1 className="text-2xl font-bold my-4 capitalize">
                 {q}
             </h1>

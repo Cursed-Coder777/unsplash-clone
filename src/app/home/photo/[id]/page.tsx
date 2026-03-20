@@ -117,7 +117,7 @@ export default async function PhotoPage({ params }: Props) {
     if (!photo) return notFound()
 
     return (
-        <div className="mt-27">
+        <div className="">
             <div className='flex items-center justify-between mb-4'>
                 <div className=' flex items-center justify-between gap-2 mb-4'>
                     <Image src={photo.user.profile_image.small} alt={photo.user.name} width={34} height={34} className='rounded-full' />
