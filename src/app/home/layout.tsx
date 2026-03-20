@@ -5,10 +5,11 @@ import { Suspense } from 'react';
 
 export default function HomeLayout({
     children,
+    photo     // 👈 Ye parallel route ka naam hai
 }: {
     children: React.ReactNode;
+    photo: React.ReactNode;
 }) {
-   
     return (
         <div className="flex min-h-screen bg-white">
             {/* Sidebar - fixed width */}
@@ -25,6 +26,11 @@ export default function HomeLayout({
                     {children}
                 </main>
             </div>
+
+            {/* ✅ Modal outside main - fixed over everything */}
+           <div className='z-40'>
+             {photo}
+           </div>
         </div>
     );
 }

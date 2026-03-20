@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Bookmark, Plus, Download, Heart } from 'lucide-react'
 
@@ -101,7 +101,7 @@ interface UnsplashPhoto {
 const Home = () => {
     const searchParams = useSearchParams()
     const q = searchParams.get('q') || 'nature'
-
+    const router = useRouter()
     const [photos, setPhotos] = useState<UnsplashPhoto[]>([])
     const [loading, setLoading] = useState(true)
     const [loadingMore, setLoadingMore] = useState(false)
@@ -174,6 +174,10 @@ const Home = () => {
         return () => observerRef.current?.disconnect()
     }, [loading, hasMore, loadingMore, page, q])
 
+   const handleImageClick = (photoId: string) => {
+    // ✅ Correct path for intercepted route
+    router.push(`/home/photo/${photoId}`, { scroll: false });
+};
     if (error) {
         return (
             <div className="container mx-auto p-10 text-center">
@@ -198,7 +202,11 @@ const Home = () => {
             ) : (
                 <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
                     {photos.map((photo, index) => (
-                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid cursor-pointer ">
+                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid cursor-pointer "
+                            onClick={() => {
+                                handleImageClick(photo.id)
+                            }}
+                        >
                             <img
                                 src={photo.urls.small}
                                 alt={photo.alt_description || "Photo"}
