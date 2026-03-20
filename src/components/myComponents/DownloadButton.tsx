@@ -4,30 +4,31 @@
 import { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, Loader2 } from 'lucide-react';
 
+// 📦 Size options with actual dimensions
 const SIZE_OPTIONS = [
-  { 
-    value: 'small', 
+  {
+    value: 'small',
     label: 'Small',
     dimensions: '640 x 887',
-    unsplashField: 'small' 
+    unsplashField: 'small'
   },
-  { 
-    value: 'medium', 
+  {
+    value: 'medium',
     label: 'Medium',
     dimensions: '1920 x 2661',
-    unsplashField: 'regular' 
+    unsplashField: 'regular'
   },
-  { 
-    value: 'large', 
+  {
+    value: 'large',
     label: 'Large',
     dimensions: '2400 x 3327',
-    unsplashField: 'full' 
+    unsplashField: 'full'
   },
-  { 
-    value: 'original', 
+  {
+    value: 'original',
     label: 'Original Size',
     dimensions: '5152 x 7142',
-    unsplashField: 'raw' 
+    unsplashField: 'raw'
   },
 ];
 
@@ -42,16 +43,17 @@ interface DownloadButtonProps {
   className?: string;
 }
 
+// ✅ Spinner with Lucide Loader2
 const Spinner = () => {
   return (
     <Loader2 className="w-4 h-4 animate-spin text-gray-900" strokeWidth={3} />
   );
 };
 
-export default function DownloadButton({ 
-  photoId, 
+export default function DownloadButton({
+  photoId,
   photoUrls,
-  className = '' 
+  className = ''
 }: DownloadButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -69,27 +71,30 @@ export default function DownloadButton({
 
   const forceDownload = async (url: string, filename: string) => {
     try {
+      // ⏳ Artificial delay to see spinner
       await new Promise(resolve => setTimeout(resolve, 1500));
+
       const response = await fetch(url);
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
-       console.error('Download failed:', error);
-       window.open(url, '_blank');
+      console.error('Download failed:', error);
+      window.open(url, '_blank');
     }
   };
 
   const handleDownload = async (sizeValue: string, unsplashField: string) => {
     setDownloading(true);
+
     try {
       if (photoUrls && photoUrls[unsplashField as keyof typeof photoUrls]) {
         const imageUrl = photoUrls[unsplashField as keyof typeof photoUrls];
@@ -98,16 +103,18 @@ export default function DownloadButton({
         const response = await fetch(`/api/unsplash/download/${photoId}?size=${sizeValue}`);
         const blob = await response.blob();
         const blobUrl = URL.createObjectURL(blob);
+
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = `unsplash-${photoId}-${sizeValue}.jpg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
         URL.revokeObjectURL(blobUrl);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error('Download failed:', error);
     } finally {
       setDownloading(false);
       setIsOpen(false);
@@ -116,57 +123,61 @@ export default function DownloadButton({
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      <div className="flex rounded-lg overflow-hidden border border-gray-300">
+      {/* Button container with rounded corners */}
+      <div className="flex rounded-lg overflow-hidden border hover:border-black border-gray-300 transition-colors duration-200">
+        
+        {/* Download button */}
         <button
           onClick={() => handleDownload('medium', 'regular')}
           disabled={downloading}
-          className="px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 hover:text-black transition-all duration-200 flex items-center gap-2 min-w-[120px] justify-center"
+          className="px-4 py-2 bg-white text-gray-700 hover:text-black hover:border-black transition-all duration-200 flex items-center gap-2 min-w-[110px] justify-center cursor-pointer"
         >
           {downloading ? (
             <>
               <Spinner />
-              <span className="text-xs font-bold">Downloading...</span>
+              <span>Downloading...</span>
             </>
           ) : (
             <>
-              <Download size={16} />
-              <span className="text-sm font-medium">Download</span>
+              <Download size={16} className="hover:text-black transition-colors" />
+              <span>Download</span>
             </>
           )}
         </button>
         
+        {/* ✅ Arrow button with working animation and hover effect */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           disabled={downloading}
-          className="px-2 py-2 bg-white text-gray-700 hover:text-black hover:bg-gray-50 transition-all duration-200 border-l border-gray-300 flex items-center justify-center group"
+          className="px-2 py-2 bg-white text-gray-700 hover:text-black hover:bg-gray-50 transition-all duration-200 cursor-pointer flex items-center justify-center group"
         >
           <ChevronDown 
             size={18} 
-            style={{ 
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.3s ease-in-out'
-            }}
-            className="group-hover:scale-125" 
+            className={`transition-all duration-300 ease-in-out hover:scale-110 hover:text-black ${isOpen ? 'rotate-180' : ''}`}
           />
         </button>
       </div>
       
+      {/* Dropdown menu */}
       {isOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 overflow-hidden">
+          {/* Backdrop to close on click outside */}
+          <div 
+            className="fixed inset-0 z-40 cursor-default"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
             {SIZE_OPTIONS.map((option) => (
               <button
                 key={option.value}
                 onClick={() => handleDownload(option.value, option.unsplashField)}
                 disabled={downloading}
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors group flex items-center"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors group cursor-pointer"
               >
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">{option.label}</span>
-                    <span className="text-[10px] text-gray-400 font-mono tracking-tighter">{option.dimensions}</span>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-900 group-hover:text-black transition-colors">{option.label}</span>
+                  <span className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors">{option.dimensions}</span>
                 </div>
               </button>
             ))}
