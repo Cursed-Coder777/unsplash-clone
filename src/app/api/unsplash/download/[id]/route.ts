@@ -1,50 +1,63 @@
+// app/api/unsplash/download/[id]/route.ts
 import { NextResponse } from 'next/server';
 
-// 📡 GET handler for downloading photo
+// 🗺️ Size to Unsplash URL field mapping
+const SIZE_TO_FIELD: Record<string, string> = {
+  small: 'small',
+  medium: 'regular',
+  large: 'full',
+  original: 'raw',
+};
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // 1️⃣ Photo ID nikaalo URL se
     const { id } = await params;
-
-    // 2️⃣ Unsplash ke /download endpoint ko hit karo (tracking ke liye)
-    //    Ye step Unsplash ke rules ke mutabik mandatory hai
-    const downloadRes = await fetch(
-      `https://api.unsplash.com/photos/${id}/download?client_id=${process.env.UNSPLASH_ACCESS_KEY}`,
-      {
-        headers: {
-          'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}`
-        }
-      }
+    const url = new URL(request.url);
+    const size = url.searchParams.get('size') || 'medium';
+    
+    // Map size to Unsplash URL field
+    const field = SIZE_TO_FIELD[size] || 'regular';
+    
+    // 1️⃣ Get photo details from Unsplash
+    const photoRes = await fetch(
+      `https://api.unsplash.com/photos/${id}?client_id=${process.env.UNSPLASH_ACCESS_KEY}`
     );
-
-    if (!downloadRes.ok) {
-      throw new Error('Failed to trigger download');
+    
+    if (!photoRes.ok) {
+      return NextResponse.json({ error: 'Photo not found' }, { status: 404 });
     }
-
-    // 3️⃣ Response mein full image URL aati hai
-    const downloadData = await downloadRes.json();
-    const imageUrl = downloadData.url;
-
-    // 4️⃣ Full image ko fetch karo
+    
+    const photo = await photoRes.json();
+    const imageUrl = photo.urls[field];
+    
+    if (!imageUrl) {
+      return NextResponse.json({ error: 'Image URL not found' }, { status: 404 });
+    }
+    
+    // 2️⃣ Track download (required by Unsplash)
+    if (size !== 'small' && size !== 'medium') {
+      await fetch(
+        `https://api.unsplash.com/photos/${id}/download?client_id=${process.env.UNSPLASH_ACCESS_KEY}`,
+        { headers: { 'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } }
+      );
+    }
+    
+    // 3️⃣ Fetch and return image
     const imageRes = await fetch(imageUrl);
     const imageBuffer = await imageRes.arrayBuffer();
-
-    // 5️⃣ Browser ko image bhejo with download headers
+    
     return new NextResponse(imageBuffer, {
       headers: {
         'Content-Type': 'image/jpeg',
-        'Content-Disposition': `attachment; filename="unsplash-${id}.jpg"`,
+        'Content-Disposition': `attachment; filename="unsplash-${id}-${size}.jpg"`,
       },
     });
-
+    
   } catch (error) {
     console.error('❌ Download error:', error);
-    return NextResponse.json(
-      { error: 'Download failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Download failed' }, { status: 500 });
   }
 }

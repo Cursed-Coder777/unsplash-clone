@@ -1,18 +1,25 @@
-import { ArrowDown, Bookmark, ChevronDown, Plus } from 'lucide-react';
+// app/photos/[id]/page.tsx
+import { Bookmark, Plus, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { RiCheckLine } from 'react-icons/ri';
+import DownloadButton from '@/components/myComponents/DownloadButton';  // 👈 Import
 
 // 🎯 Props type
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-// 🖼️ Type definition (simplified)
+// 🖼️ Type definition
 interface UnsplashPhoto {
   id: string;
-  urls: { regular: string; small: string };
+  urls: { 
+    regular: string; 
+    small: string;
+    full: string;
+    raw: string;
+  };
   alt_description: string | null;
   user: {
     name: string;
@@ -43,9 +50,9 @@ export default async function PhotoPage({ params }: Props) {
   return (
     <div className="container mx-auto px-4 py-8 mt-20">
       {/* 🔙 Back button */}
-      <Link href="/home" className="text-blue-500 hover:underline mb-4 inline-block">
+      {/* <Link href="/home" className="text-blue-500 hover:underline mb-4 inline-block">
         ← Back to home
-      </Link>
+      </Link> */}
 
       {/* 👤 User info and action buttons */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
@@ -77,20 +84,16 @@ export default async function PhotoPage({ params }: Props) {
             <Plus size={18} />
           </button>
 
-          {/* ⬇️ Download button with tooltip */}
-          <div className="flex">
-            <a
-              href={`/api/unsplash/download/${photo.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-gray-300 px-4 py-1.5 rounded-l-lg hover:bg-gray-50 transition-colors"
-            >
-              Download
-            </a>
-            <button className="border border-gray-300 px-3 py-1.5 rounded-r-lg border-l-0 hover:bg-gray-50 transition-colors">
-              <ChevronDown size={18} />
-            </button>
-          </div>
+          {/* ⬇️ Multiple size download button */}
+          <DownloadButton 
+            photoId={photo.id} 
+            photoUrls={{
+              small: photo.urls.small,
+              regular: photo.urls.regular,
+              full: photo.urls.full,
+              raw: photo.urls.raw
+            }}
+          />
         </div>
       </div>
 
@@ -106,7 +109,7 @@ export default async function PhotoPage({ params }: Props) {
       </div>
 
       {/* 📊 Photo stats */}
-      <div className="flex gap-6 mt-6 justify-center">
+      {/* <div className="flex gap-6 mt-6 justify-center">
         <div>
           <p className="font-semibold">{photo.likes.toLocaleString()}</p>
           <p className="text-sm text-gray-500">Likes</p>
@@ -115,7 +118,7 @@ export default async function PhotoPage({ params }: Props) {
           <p className="font-semibold">{photo.width} × {photo.height}</p>
           <p className="text-sm text-gray-500">Dimensions</p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
