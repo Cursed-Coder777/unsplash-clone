@@ -12,7 +12,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className='flex h-screen flex-col items-center justify-between p-4 border-r bg-white'>
+        <div className=' h-screen sm:flex-col items-center justify-between p-4 border-r bg-white hidden sm:flex sm:w-12'>
             {/* Top Icons */}
             <div className='flex flex-col gap-5 items-center'>
                 <Link href='/home'>

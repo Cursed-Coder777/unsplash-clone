@@ -14,16 +14,16 @@ export default function HomeLayout({
   return (
     <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
-      <div className="w-[3%] fixed left-0 top-0 h-full z-10">
+      <div className="w-12 fixed left-0 top-0 h-full z-10">
         <Sidebar />
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col w-full ml-[3%]">
+      <div className="flex flex-col w-[99%] ">
         <Suspense fallback={<div className="h-16 animate-pulse bg-gray-100"></div>}>
           <Navbar />
         </Suspense>
-        <main className="flex-1 p-6 " style={{marginTop: '100px'}}>
+        <main className="flex-1 " style={{marginTop: '100px'}}>
           {children}
         </main>
       </div>

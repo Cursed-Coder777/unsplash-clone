@@ -15,6 +15,7 @@ export default async function AccountPage() {
 
     const decoded = verifyToken(token);
     if (!decoded || typeof decoded === 'string') {
+        // If token is invalid or expired, redirect to login
         redirect('/login');
     }
 

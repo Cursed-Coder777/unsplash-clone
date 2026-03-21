@@ -45,7 +45,7 @@ export default function VerifyPage() {
         const digits = pastedText.replace(/\D/g, '').slice(0, 6); // Only digits, max 6
 
         if (digits.length > 0) {
-            const newOtp = [...otp];
+            const newOtp = [...otp]; // Start with current OTP to preserve any already filled digits
             for (let i = 0; i < digits.length; i++) {
                 newOtp[i] = digits[i];
             }
@@ -78,13 +78,14 @@ export default function VerifyPage() {
     };
 
     const handleVerify = async () => {
+        
         const otpCode = otp.join('');
         if (otpCode.length !== 6) return;
 
         setLoading(true);
         setError('');
         setSuccess('');
-
+        // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
         try {
             const res = await fetch('/api/auth/verify-otp', {
                 method: 'POST',
@@ -217,7 +218,7 @@ export default function VerifyPage() {
                         <button
                             onClick={handleResend}
                             disabled={loading}
-                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                            className="text-sm text-white-600 hover:text-black-700 font-medium"
                         >
                             Resend OTP
                         </button>
@@ -228,7 +229,7 @@ export default function VerifyPage() {
                     <button
                         onClick={handleVerify}
                         disabled={loading || otp.some(d => d === '')}
-                        className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full py-2 px-4 bg-[#767676] text-white rounded-lg hover:bg-black transition-colors cursor-pointer "
                     >
                         {loading ? 'Verifying...' : 'Verify Email'}
                     </button>

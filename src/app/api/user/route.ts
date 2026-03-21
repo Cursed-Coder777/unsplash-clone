@@ -47,3 +47,7 @@ export async function GET() {
         return NextResponse.json({ user: null })
     }
 }
+
+// Yeh file kyun banayi?
+// Current logged-in user ka data fetch karne ke liye
+// UserMenu.tsx me use hua ha
