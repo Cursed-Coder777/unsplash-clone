@@ -92,8 +92,8 @@ const Login = () => {
                                 onChange={handleChange}
                                 required
                             />
-                            <InputGroupAddon 
-                                align="inline-end" 
+                            <InputGroupAddon
+                                align="inline-end"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="cursor-pointer"
                             >
@@ -102,9 +102,9 @@ const Login = () => {
                         </InputGroup>
                     </Field>
 
-                    <Button 
-                        type="submit" 
-                        size="lg" 
+                    <Button
+                        type="submit"
+                        size="lg"
                         className="w-full"
                         disabled={loading}
                     >
