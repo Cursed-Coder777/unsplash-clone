@@ -54,6 +54,7 @@ function formatDate(dateStr: string) {
   return `Published on ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
 }
 
+
 export default async function PhotoPage({ params }: Props) {
   const { id } = await params;
   const photo: UnsplashPhoto | null = await getPhoto(id);
@@ -116,7 +117,7 @@ export default async function PhotoPage({ params }: Props) {
               alt={photo.alt_description || 'Photo'}
               width={100}
               height={100}
-              className="w-24 h-240"
+              className="max-h-185 min-w-185"
 
             />
           </div>
@@ -166,12 +167,13 @@ export default async function PhotoPage({ params }: Props) {
         <div className="mt-6">
           <div className="flex flex-wrap gap-2">
             {(photo.tags || []).map((tag, i) => (
-              <span
+              <Link
                 key={i}
+                href={`/home?q=${encodeURIComponent(tag.title)}`}
                 className="bg-gray-100 px-3 py-1 rounded text-sm text-gray-600 font-medium hover:bg-gray-200 cursor-pointer transition capitalize"
               >
                 {tag.title}
-              </span>
+              </Link>
             ))}
           </div>
         </div>
