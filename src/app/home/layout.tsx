@@ -23,7 +23,7 @@ export default function HomeLayout({
         <Suspense fallback={<div className="h-16 animate-pulse bg-gray-100"></div>}>
           <Navbar />
         </Suspense>
-        <main className="flex-1 p-6 mt-27">
+        <main className="flex-1 p-6 " style={{marginTop: '100px'}}>
           {children}
         </main>
       </div>
