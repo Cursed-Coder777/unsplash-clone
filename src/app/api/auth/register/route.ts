@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+// app/api/auth/register/route.ts
+import { NextResponse } from 'next/server';
 import { connectToDb } from '@/lib/db';
 import User from '@/lib/models/User';
-import { generateToken, hashPassword } from '@/lib/utils';
+import { hashPassword } from '@/lib/utils';
+import { generateOTP, getOTPExpiry } from '@/lib/otp';
+import { sendOTPEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
     try {
@@ -51,7 +54,12 @@ export async function POST(request: Request) {
         console.log('🔐 Hashing password...');
         const hashedPassword = await hashPassword(password);
 
-        // 7. Create user
+        // 7. Generate OTP
+        const otp = generateOTP();
+        const otpExpiry = getOTPExpiry();
+        console.log('🔢 Generated OTP:', otp, 'Expires at:', otpExpiry);
+
+        // 8. Create user (unverified with OTP)
         console.log('👤 Creating user...');
         const user = await User.create({
             firstName,
@@ -59,33 +67,34 @@ export async function POST(request: Request) {
             email,
             username,
             password: hashedPassword,
+            isVerified: false,                    // ✅ Email not verified yet
+            otp: {
+                code: otp,
+                expiresAt: otpExpiry,
+            },
         });
 
         console.log('✅ User created successfully:', user._id);
 
-        // 8. Generate token
-        const token = generateToken(user._id);
+        // 9. Send OTP email (try-catch to not fail registration if email fails)
+        try {
+            await sendOTPEmail(email, otp, firstName);
+            console.log('📧 OTP email sent successfully');
+        } catch (emailError) {
+            console.error('❌ Failed to send OTP email:', emailError);
+            // Don't fail registration, just log error
+            // User can request resend later
+        }
 
-        // 9. Return response with cookie
+        // 10. Return response WITHOUT token (wait for verification)
         const response = NextResponse.json({
-            message: 'User created successfully',
-            user: {
-                id: user._id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                username: user.username,
-            },
+            message: 'User created successfully. Please verify your email.',
+            email: user.email,
+            requiresVerification: true,
         }, { status: 201 });
 
-        //  Set cookie
-        response.cookies.set('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-        });
+        // ❌ DO NOT set token cookie until email is verified
+        // Cookie will be set after OTP verification
 
         return response;
 

@@ -45,8 +45,9 @@ const Register = () => {
                 throw new Error(data.error || 'Registration failed');
             }
 
-            router.push('/home');
-        } catch (err: Error | any) {
+            // ✅ Redirect to OTP verification page with email
+            router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
+        } catch (err: any) {
             setError(err.message);
         } finally {
             setLoading(false);

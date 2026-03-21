@@ -1,9 +1,10 @@
 // src/app/home/photo/[id]/page.tsx
-import { Bookmark, Plus, Wand2, Share2, Info, MoreHorizontal, Calendar, Disc, CircleCheck } from 'lucide-react';
+import { Bookmark, Plus, Wand2, Info, MoreHorizontal, Calendar, Disc, CircleCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import DownloadButton from '@/components/myComponents/DownloadButton';
+import ShareMenu from '@/components/myComponents/ShareMenu';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -58,6 +59,7 @@ function formatDate(dateStr: string) {
 export default async function PhotoPage({ params }: Props) {
   const { id } = await params;
   const photo: UnsplashPhoto | null = await getPhoto(id);
+  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/home/photo/${id}`;
 
   if (!photo) return notFound();
 
@@ -82,8 +84,8 @@ export default async function PhotoPage({ params }: Props) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center border border-gray-300 rounded divide-x divide-gray-300 overflow-hidden">
-              <button className="px-3 py-2 text-gray-500 hover:text-black hover:bg-gray-50 transition">
+            <div className="flex items-center border border-gray-300  rounded-lg divide-x divide-gray-300 overflow-hidden">
+              <button className="px-3 py-2 text-gray-500  hover:text-black hover:bg-gray-50 transition">
                 <Bookmark size={18} />
               </button>
               <button className="px-3 py-2 text-gray-500 hover:text-black hover:bg-gray-50 transition">
@@ -91,7 +93,7 @@ export default async function PhotoPage({ params }: Props) {
               </button>
             </div>
 
-            <button className="hidden md:flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded text-sm font-medium text-gray-500 hover:border-black hover:text-black transition">
+            <button className="hidden md:flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:border-black hover:text-black transition">
               <Wand2 size={16} />
               <span>Edit image</span>
               <ChevronDown size={14} />
@@ -137,11 +139,8 @@ export default async function PhotoPage({ params }: Props) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded text-sm font-medium text-gray-500 hover:border-black hover:text-black transition">
-              <Share2 size={16} />
-              <span>Share</span>
-            </button>
-            <button className="flex items-center gap-2 border border-gray-200 px-3 py-1.5 rounded text-sm font-medium text-gray-500 hover:border-black hover:text-black transition">
+            <ShareMenu shareUrl={shareUrl} />
+            <button className="flex items-center gap-2 border rounded-lg border-gray-200 px-3 py-1.5  text-sm font-medium text-gray-500 hover:border-black hover:text-black transition">
               <Info size={16} />
               <span>Info</span>
             </button>

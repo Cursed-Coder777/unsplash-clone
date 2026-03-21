@@ -6,7 +6,6 @@ import AccountForm from './AccountForm';
 import { verifyToken } from '@/lib/utils';
 
 export default async function AccountPage() {
-    // 1. Cookies se token lo
     const cookieStore = await cookies();
     const token = cookieStore.get('token')?.value;
 
@@ -14,13 +13,11 @@ export default async function AccountPage() {
         redirect('/login');
     }
 
-    // 2. Token verify karo
     const decoded = verifyToken(token);
     if (!decoded || typeof decoded === 'string') {
         redirect('/login');
     }
 
-    // 3. Database se user fetch karo
     await connectToDb();
     const user = await User.findById(decoded.userId).select('-password');
     
@@ -28,13 +25,14 @@ export default async function AccountPage() {
         redirect('/login');
     }
 
-    // 4. User data ko plain object mein convert karo
+    // Convert user data to plain object
     const userData = {
         id: user._id.toString(),
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
         username: user.username || '',
+        avatar: user.avatar || '',
         bio: user.bio || '',
         location: user.location || '',
         website: user.website || '',
