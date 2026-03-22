@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Bookmark, Plus, Download, Heart } from 'lucide-react'
@@ -112,6 +112,12 @@ const Home = () => {
     const observerRef = useRef<IntersectionObserver | null>(null)
     const loadMoreRef = useRef<HTMLDivElement>(null)
 
+    const dedupePhotos = (photosToKeep: UnsplashPhoto[], photosToAdd: UnsplashPhoto[]) => {
+        const existingIds = new Set(photosToKeep.map(photo => photo.id))
+        const filtered = photosToAdd.filter(photo => !existingIds.has(photo.id))
+        return [...photosToKeep, ...filtered]
+    }
+
     const fetchPhotos = async (pageNum: number, isNewSearch: boolean = false) => {
         if (isNewSearch) {
             setLoading(true)
@@ -130,10 +136,13 @@ const Home = () => {
 
             const data = await response.json()
 
+            const apiPhotos: UnsplashPhoto[] = data.results || []
             if (isNewSearch) {
-                setPhotos(data.results || [])
+                // Deduplicate based on id for fresh query too
+                const unique = Array.from(new Map(apiPhotos.map(photo => [photo.id, photo])).values())
+                setPhotos(unique)
             } else {
-                setPhotos(prev => [...prev, ...(data.results || [])])
+                setPhotos(prev => dedupePhotos(prev, apiPhotos))
             }
 
             setHasMore(pageNum < data.total_pages)
@@ -174,10 +183,22 @@ const Home = () => {
         return () => observerRef.current?.disconnect()
     }, [loading, hasMore, loadingMore, page, q])
 
-   const handleImageClick = (photoId: string) => {
-    // ✅ Correct path for intercepted route
-    router.push(`/home/photo/${photoId}`, { scroll: false });
-};
+    const handleImageClick = (photoId: string) => {
+        // ✅ Correct path for intercepted route
+        router.push(`/home/photo/${photoId}`, { scroll: false });
+    };
+    const columns = useMemo(() => {
+        const cols: UnsplashPhoto[][] = [[], [], []];
+        const colHeights = [0, 0, 0];
+
+        photos.forEach((photo) => {
+            const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
+            cols[minHeightIndex].push(photo);
+            colHeights[minHeightIndex] += (photo.height / photo.width);
+        });
+        return cols;
+    }, [photos]);
+
     if (error) {
         return (
             <div className="container mx-auto p-10 text-center">
@@ -200,50 +221,52 @@ const Home = () => {
                     ))}
                 </div>
             ) : (
-                <div className='columns-1 sm:columns-2 lg:columns-3 gap-4'>
-                    {photos.map((photo, index) => (
-                        <div key={`${photo.id}-${index}`} className="group relative overflow-hidden mb-4 break-inside-avoid cursor-pointer "
-                            onClick={() => {
-                                handleImageClick(photo.id)
-                            }}
-                        >
-                            <Image
-                                src={photo.urls.small}
-                                width={photo.width}
-                                height={photo.height}
-                                alt={photo.alt_description || "Photo"}
-                                className="w-full h-auto transition-transform duration-300"
-                                loading="lazy"
-                            />
-                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity ">
-                                <div className='absolute top-5 right-5 flex gap-3'>
-                                    <button className='bg-white/80 cursor-pointer backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
-                                        <Bookmark size={16} />
-                                    </button>
-                                    <button className='bg-white/80 cursor-pointer backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
-                                        <Plus size={16} />
-                                    </button>
+                <div className='flex flex-col lg:flex-row gap-4'>
+                    {columns.map((column, colIndex) => (
+                        <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                            {column.map((photo) => (
+                                <div key={photo.id} className="group relative overflow-hidden break-inside-avoid cursor-pointer rounded-xl"
+                                    onClick={() => handleImageClick(photo.id)}
+                                >
+                                    <Image
+                                        src={photo.urls.small}
+                                        width={photo.width}
+                                        height={photo.height}
+                                        alt={photo.alt_description || "Photo"}
+                                        className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                                        loading="lazy"
+                                    />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className='absolute top-4 right-4 flex gap-2'>
+                                            <button className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'>
+                                                <Bookmark size={18} />
+                                            </button>
+                                            <button className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'>
+                                                <Plus size={18} />
+                                            </button>
+                                        </div>
+                                        <div className='absolute bottom-4 right-4'>
+                                            <button className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'>
+                                                <Download size={18} />
+                                            </button>
+                                        </div>
+                                        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                            {photo.user.profile_image?.small && (
+                                                <Image
+                                                    src={photo.user.profile_image.small}
+                                                    alt={photo.user.name}
+                                                    width={32}
+                                                    height={32}
+                                                    className='rounded-full w-8 h-8 object-cover border-2 border-white/50'
+                                                />
+                                            )}
+                                            <p className="text-white text-sm font-semibold drop-shadow-md">
+                                                {photo.user.name}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className='absolute bottom-5 right-5'>
-                                    <button className='bg-white/80 cursor-pointer backdrop-blur-sm w-10 h-8 rounded-lg flex justify-center items-center text-gray-700 hover:bg-white transition-colors'>
-                                        <Download size={18} />
-                                    </button>
-                                </div>
-                                <div className="absolute bottom-5 left-5 flex items-center gap-2">
-                                    {photo.user.profile_image?.small && (
-                                        <Image
-                                            src={photo.user.profile_image.small}
-                                            alt={photo.user.name}
-                                            width={32}
-                                            height={32}
-                                            className='rounded-full w-8 h-8 object-cover border border-white/20'
-                                        />
-                                    )}
-                                    <p className="text-white text-sm font-medium">
-                                        {photo.user.name}
-                                    </p>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     ))}
                 </div>

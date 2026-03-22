@@ -173,7 +173,7 @@ export default function AvatarUploadModal({
                     <div className="flex gap-3 p-4 border-t border-gray-200 bg-gray-50">
                         <button
                             onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-white transition-colors"
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-white cursor-pointer transition-colors"
                         >
                             Cancel
                         </button>

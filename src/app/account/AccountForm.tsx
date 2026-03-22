@@ -148,7 +148,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                             <button
                                 type="button"
                                 onClick={() => setModalOpen(true)}
-                                className="text-[13px] text-[#767676] underline hover:text-[#111] transition-colors"
+                                className="text-[13px] text-[#767676] underline hover:text-[#111] transition-colors cursor-pointer"
                             >
                                 Change profile image
                             </button>
