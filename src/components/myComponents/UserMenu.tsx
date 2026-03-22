@@ -15,7 +15,7 @@ interface UserData {
 }
 
 interface UserMenuProps {
-    variant?: 'navbar' | 'sidebar';
+    variant?: 'navbar' | 'sidebar' | 'bottom';
 }
 
 export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
@@ -128,7 +128,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
         );
     }
 
-    // Default Navbar Variant
+    // Default Navbar/Bottom Variant
     if (!user) return <Link href="/login" className="text-[#767676] hover:text-black text-sm font-medium">Login</Link>;
 
     return (
@@ -149,7 +149,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50">
+                <div className={`absolute right-0 ${variant === 'bottom' ? 'bottom-full mb-3' : 'mt-3'} w-64 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50 animate-in fade-in ${variant === 'bottom' ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'} duration-200`}>
                     <div className="px-4 py-3 border-b border-gray-50 mb-1">
                         <div className="font-bold text-gray-900 text-sm">{user.firstName} {user.lastName}</div>
                         <div className="text-xs text-gray-500 truncate">{user.email}</div>

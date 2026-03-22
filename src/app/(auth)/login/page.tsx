@@ -52,20 +52,20 @@ const Login = () => {
     };
 
     return (
-        <div className='w-screen flex justify-center mt-32 '>
-            <div className='flex flex-col items-center gap-8 w-full'>
+        <div className='w-full flex justify-center mt-12 lg:mt-32 px-4'>
+            <div className='flex flex-col items-center gap-8 w-full max-w-[500px]'>
                 <div className="text-center">
                     <h1 className='font-bold text-[24px]'>Login</h1>
                     <small>Welcome back.</small>
                 </div>
 
                 {error && (
-                    <div className="w-[90%] max-w-[500] bg-red-50 text-red-500 p-3 rounded-lg text-sm">
+                    <div className="w-full bg-red-50 text-red-500 p-3 rounded-lg text-sm">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="w-[90%] max-w-[500] space-y-4">
+                <form onSubmit={handleSubmit} className="w-full space-y-4">
                     <Field>
                         <FieldLabel htmlFor="email">Email</FieldLabel>
                         <InputGroup>
@@ -112,7 +112,7 @@ const Login = () => {
                     </Button>
                 </form>
 
-                <div className="border border-gray-300 flex justify-center items-center w-[90%] max-w-[500] h-12 rounded-lg">
+                <div className="border border-gray-300 flex justify-center items-center w-full h-12 rounded-lg text-sm sm:text-base">
                     Don&apos;t have an account?
                     <Link href="/register" className="underline text-gray-400 ml-1">
                         Join

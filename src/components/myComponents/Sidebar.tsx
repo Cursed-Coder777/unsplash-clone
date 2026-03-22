@@ -1,6 +1,16 @@
+// src/components/myComponents/Sidebar.tsx
 'use client';
 
-import { Bookmark, Compass, Download, Folders, Framer, ImageIcon, Languages, PenTool, TextAlignJustify } from 'lucide-react';
+import {
+    Bookmark,
+    Compass,
+    Download,
+    Folders,
+    ImageIcon,
+    Languages,
+    PenTool,
+    TextAlignJustify
+} from 'lucide-react';
 import Link from 'next/link';
 import LanguageDropdown from '@/components/myComponents/LanguageDropDown';
 import UserMenu from './UserMenu';
@@ -12,22 +22,24 @@ const Sidebar = () => {
     };
 
     return (
-        <div className=' h-screen sm:flex-col items-center justify-between p-4 border-r bg-white hidden sm:flex sm:w-12'>
+        <div className='flex h-screen flex-col items-center justify-between p-4 border-r bg-white w-full'>
             {/* Top Icons */}
-            <div className='flex flex-col gap-5 items-center'>
+            <div className='flex flex-col gap-6 items-center'>
                 <Link href='/home'>
-                    <RiUnsplashFill size={28} className='text-black cursor-pointer transition-colors' />
+                    <RiUnsplashFill size={30} className='text-black cursor-pointer transition-colors mb-2' />
                 </Link>
-                <ImageIcon size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                <PenTool size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                <Compass size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                <Folders size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                <Download size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                <Bookmark size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                <div className="flex flex-col gap-5 items-center">
+                    <ImageIcon size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    <PenTool size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    <Compass size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    <Folders size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    <Download size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    <Bookmark size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                </div>
             </div>
 
             {/* Bottom Icons */}
-            <div className='flex flex-col gap-5 items-center'>
+            <div className='flex flex-col gap-6 items-center'>
                 {/* User Menu - Sidebar variant */}
                 <UserMenu variant="sidebar" />
 

@@ -84,7 +84,7 @@ export default function AccountForm({ user }: { user: UserData }) {
     <div>
         <nav>
             <Link href='/home'>
-                <RiUnsplashFill size={48} className='text-black cursor-pointer transition-colors m-2' />
+                <RiUnsplashFill size={40} className='text-black cursor-pointer transition-colors m-4 lg:m-2' />
             </Link>
         </nav>
 
