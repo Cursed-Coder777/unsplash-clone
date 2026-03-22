@@ -74,7 +74,7 @@ const Navbar = () => {
 
                     <div className="hidden lg:flex items-center gap-6">
                         <Link href="/plus" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
-                            Unsplash+
+                            Get Unsplash+
                         </Link>
                         <button className="text-sm font-medium text-gray-500 border border-gray-300 px-3 py-1.5 rounded-md hover:border-black hover:text-black transition-all">
                             Submit an image
