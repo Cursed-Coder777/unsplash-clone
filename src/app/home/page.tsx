@@ -207,8 +207,10 @@ const Home = () => {
                                 handleImageClick(photo.id)
                             }}
                         >
-                            <img
+                            <Image
                                 src={photo.urls.small}
+                                width={photo.width}
+                                height={photo.height}
                                 alt={photo.alt_description || "Photo"}
                                 className="w-full h-auto transition-transform duration-300"
                                 loading="lazy"

@@ -12,7 +12,7 @@ const BottomNav = () => {
     const isActive = (path: string) => pathname === path;
 
     return (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2 flex items-center justify-between z-50">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2 flex items-center justify-between z-50">
             <Link href="/home" className={`flex flex-col items-center gap-1 ${isActive('/home') ? 'text-black' : 'text-[#767676]'}`}>
                 <Home size={24} strokeWidth={isActive('/home') ? 2.5 : 2} />
             </Link>
