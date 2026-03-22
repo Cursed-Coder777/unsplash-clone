@@ -224,9 +224,19 @@ const Home = () => {
                 <div className='flex flex-col lg:flex-row gap-4'>
                     {columns.map((column, colIndex) => (
                         <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                            {column.map((photo) => (
-                                <div key={photo.id} className="group relative overflow-hidden break-inside-avoid cursor-pointer rounded-xl"
+                            {column.map((photo, photoIndex) => (
+                                <div key={photo.id}
+                                    className="group relative overflow-hidden break-inside-avoid cursor-pointer rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     onClick={() => handleImageClick(photo.id)}
+                                    role="button"
+                                    aria-label={`View photo by ${photo.user.name}`}
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            handleImageClick(photo.id);
+                                        }
+                                    }}
                                 >
                                     <Image
                                         src={photo.urls.small}
@@ -234,19 +244,29 @@ const Home = () => {
                                         height={photo.height}
                                         alt={photo.alt_description || "Photo"}
                                         className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                                        loading="lazy"
+                                        // loading={photoIndex < 1 && colIndex === 0 ? "eager" : "lazy"}
+                                        priority={photoIndex < 1 && colIndex < 3}
                                     />
                                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <div className='absolute top-4 right-4 flex gap-2'>
-                                            <button className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'>
+                                            <button
+                                                className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                aria-label="Bookmark photo"
+                                            >
                                                 <Bookmark size={18} />
                                             </button>
-                                            <button className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'>
+                                            <button
+                                                className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                aria-label="Add photo to collection"
+                                            >
                                                 <Plus size={18} />
                                             </button>
                                         </div>
                                         <div className='absolute bottom-4 right-4'>
-                                            <button className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'>
+                                            <button
+                                                className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                aria-label="Download photo"
+                                            >
                                                 <Download size={18} />
                                             </button>
                                         </div>

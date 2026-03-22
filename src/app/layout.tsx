@@ -13,8 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Unsplash Clone",
-  description: "Created by Ansab",
+  title: "Unsplash Clone | High Quality Wallpapers & Photos",
+  description: "A beautiful Unsplash clone built with Next.js, featuring a high-performance masonry grid and seamless photo discovery.",
+  keywords: ["photography", "wallpapers", "free photos", "unsplash clone", "nextjs"],
+  themeColor: "#ffffff",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 };
 
 export default function RootLayout({
