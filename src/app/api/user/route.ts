@@ -31,7 +31,12 @@ export async function GET() {
         if (!user) {
             return NextResponse.json({ user: null })
         }
-
+        // Check if user is verified
+        if (!user.isVerified) {
+            // Optional: Delete unverified user from database
+            await User.findByIdAndDelete(user._id)
+            return NextResponse.json({ user: null })
+        }
         return NextResponse.json({ 
             user: {
                 id: user._id.toString(),

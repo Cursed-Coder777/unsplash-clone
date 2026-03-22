@@ -74,6 +74,9 @@ export default function AvatarUploadModal({
 
             onAvatarUpdate(data.avatar);
             onClose();
+            
+            // Notify other components that avatar was updated
+            window.dispatchEvent(new CustomEvent('avatarUpdated'));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Upload failed');
         } finally {

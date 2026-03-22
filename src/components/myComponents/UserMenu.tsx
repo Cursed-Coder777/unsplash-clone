@@ -22,25 +22,42 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [refreshKey, setRefreshKey] = useState(0);
     const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
-    // Fetch user on mount
+    // Fetch user on mount and when refreshKey changes
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const res = await fetch('/api/user');
                 const data = await res.json();
+                // API already handles verification, here just use returned user
                 if (res.ok && data.user) {
                     setUser(data.user);
+                } else {
+                    setUser(null);
                 }
             } catch (err) {
                 console.error('Fetch user failed:', err);
+                setUser(null);
             } finally {
                 setLoading(false);
             }
         };
         fetchUser();
+    }, [refreshKey]);
+
+    // Function to refresh user data
+    const refreshUser = () => {
+        setRefreshKey(prev => prev + 1);
+    };
+
+    // Listen for avatar updates from other components
+    useEffect(() => {
+        const handleAvatarUpdate = () => refreshUser();
+        window.addEventListener('avatarUpdated', handleAvatarUpdate);
+        return () => window.removeEventListener('avatarUpdated', handleAvatarUpdate);
     }, []);
 
     // Close on click outside
@@ -73,9 +90,19 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
     if (variant === 'sidebar') {
         const trigger = user ? (
             <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
-                {user.avatar ? (
-                    <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
-                ) : (
+                {user.avatar && user.avatar.trim() !== '' ? (
+                    <img 
+                        src={user.avatar} 
+                        alt="User" 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => {
+                            // Hide broken image and show fallback
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                    />
+                ) : null}
+                {(!user.avatar || user.avatar.trim() === '') && (
                     <span className="text-gray-600 text-sm font-bold uppercase">
                         {user.firstName?.[0]}{user.lastName?.[0]}
                     </span>
@@ -138,9 +165,19 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                 className="flex items-center gap-2 hover:bg-gray-100 p-1 rounded-full transition-all"
             >
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 border border-gray-100 flex items-center justify-center">
-                    {user.avatar ? (
-                        <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
-                    ) : (
+                    {user.avatar && user.avatar.trim() !== '' ? (
+                        <img 
+                            src={user.avatar} 
+                            alt="User" 
+                            className="w-full h-full object-cover" 
+                            onError={(e) => {
+                                // Hide broken image and show fallback
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                        />
+                    ) : null}
+                    {(!user.avatar || user.avatar.trim() === '') && (
                         <span className="text-gray-600 text-xs font-bold uppercase ">
                             {user.firstName?.[0]}{user.lastName?.[0]}
                         </span>
