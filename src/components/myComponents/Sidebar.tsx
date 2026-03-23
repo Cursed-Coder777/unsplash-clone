@@ -2,6 +2,7 @@
 'use client';
 
 import {
+    BarChart3,
     Bookmark,
     Compass,
     Download,
@@ -40,6 +41,9 @@ const Sidebar = () => {
                     <Download size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                     <Link href="/account/bookmarks">
                         <Bookmark size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    </Link>
+                    <Link href="/admin/ads">
+                        <BarChart3 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                     </Link>
                 </div>
             </div>

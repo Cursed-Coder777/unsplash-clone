@@ -8,6 +8,8 @@ import DownloadButton from '@/components/myComponents/DownloadButton'
 import ScrollToTop from '@/components/myComponents/ScrollToTop'
 import BookmarkButton from '@/components/myComponents/BookmarkButton'
 import LikeButton from '@/components/myComponents/LikeButton'
+import SponsoredPost from '@/components/myComponents/SponsoredPost'
+import SearchFilters from '@/components/myComponents/SearchFilters'
 
 interface UnsplashPhoto {
     id: string
@@ -112,6 +114,11 @@ const Home = () => {
     const [error, setError] = useState('')
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
+    const [filters, setFilters] = useState({
+        order_by: 'relevant',
+        color: '',
+        orientation: ''
+    })
 
     const observerRef = useRef<IntersectionObserver | null>(null)
     const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -131,10 +138,11 @@ const Home = () => {
         }
 
         try {
-            const response = await fetch(
-                `/api/unsplash?query=${encodeURIComponent(q)}&page=${pageNum}`,
-                { cache: 'no-store' }
-            )
+            let apiUrl = `/api/unsplash?query=${encodeURIComponent(q)}&page=${pageNum}&order_by=${filters.order_by}`
+            if (filters.color) apiUrl += `&color=${filters.color}`
+            if (filters.orientation) apiUrl += `&orientation=${filters.orientation}`
+
+            const response = await fetch(apiUrl, { cache: 'no-store' })
 
             if (!response.ok) throw new Error('Failed to fetch photos')
 
@@ -161,7 +169,7 @@ const Home = () => {
     useEffect(() => {
         setPage(1)
         fetchPhotos(1, true)
-    }, [q])
+    }, [q, filters])
 
     const loadMore = () => {
         if (loadingMore || !hasMore || loading) return
@@ -185,20 +193,28 @@ const Home = () => {
         if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current)
 
         return () => observerRef.current?.disconnect()
-    }, [loading, hasMore, loadingMore, page, q])
+    }, [loading, hasMore, loadingMore, page, q, filters])
 
     const handleImageClick = (photoId: string) => {
         // ✅ Correct path for intercepted route
         router.push(`/home/photo/${photoId}`, { scroll: false });
     };
     const columns = useMemo(() => {
-        const cols: UnsplashPhoto[][] = [[], [], []];
+        const cols: (UnsplashPhoto | { type: 'ad'; id: string })[][] = [[], [], []];
         const colHeights = [0, 0, 0];
 
-        photos.forEach((photo) => {
+        photos.forEach((photo, index) => {
             const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
-            cols[minHeightIndex].push(photo);
-            colHeights[minHeightIndex] += (photo.height / photo.width);
+            
+            // Inject an ad indicator every 12 items (approx)
+            if (index > 0 && index % 12 === 0) {
+                cols[minHeightIndex].push({ type: 'ad', id: `ad-${index}` });
+                colHeights[minHeightIndex] += 1.25; // Estimate height for 4/5 aspect ratio
+            }
+            
+            const targetCol = colHeights.indexOf(Math.min(...colHeights));
+            cols[targetCol].push(photo);
+            colHeights[targetCol] += (photo.height / photo.width);
         });
         return cols;
     }, [photos]);
@@ -217,9 +233,13 @@ const Home = () => {
         <>
 
             <div className="flex flex-col container mx-auto px-4 ">
-                <h1 className="text-2xl font-bold my-4 capitalize">
+                <h1 className="text-2xl font-bold mt-4 mb-2 capitalize">
                     {q}
                 </h1>
+
+                <SearchFilters 
+                    onFilterChange={(newFilters) => setFilters(newFilters)} 
+                />
 
                 {loading && photos.length === 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -231,91 +251,104 @@ const Home = () => {
                     <div className='flex flex-col lg:flex-row gap-4'>
                         {columns.map((column, colIndex) => (
                             <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                {column.map((photo, photoIndex) => (
-                                    <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer">
+                                {column.map((item, photoIndex) => {
+                                    if ('type' in item && item.type === 'ad') {
+                                        return (
+                                            <SponsoredPost 
+                                                key={item.id}
+                                                title="Elevate Your Creative Vision with Premium Assets"
+                                                description="Get exclusive access to high-resolution photos and illustrations. Limited time offer."
+                                                imageUrl="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1000"
+                                                sponsorName="CreativePro"
+                                                targetUrl="https://unsplash.com"
+                                            />
+                                        );
+                                    }
+                                    
+                                    const photo = item as UnsplashPhoto;
+                                    return (
+                                        <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer">
                                             <div 
                                                 className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
                                                 style={{ backgroundColor: photo.color || '#f3f3f3' }}
                                                 onClick={() => handleImageClick(photo.id)}
                                                 role="button"
-                                            aria-label={`View photo by ${photo.user.name}`}
-                                            tabIndex={0}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' || e.key === ' ') {
-                                                    e.preventDefault();
-                                                    handleImageClick(photo.id);
-                                                }
-                                            }}
-                                        >
-                                            <Image
-                                                src={photo.urls.small}
-                                                width={photo.width}
-                                                height={photo.height}
-                                                alt={photo.alt_description || "Photo"}
-                                                className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                priority={photoIndex < 2 && colIndex < 3}
-                                            />
-                                        </div>
-                                        <div
-                                            onClick={() => handleImageClick(photo.id)}
-                                            className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <div className='absolute top-4 right-4 flex gap-2 z-1'>
-
-                                                <div
-                                                    className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                    aria-label="Like photo "
-                                                >
-                                                    <LikeButton photoId={photo.id} />
-                                                </div>
-                                                <div
-                                                    className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                    aria-label="Bookmark photo "
-                                                >
-                                                    <BookmarkButton photoId={photo.id} />
-                                                </div>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.preventDefault()
-                                                        e.stopPropagation()
-                                                    }}
-                                                    className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                    aria-label="Add photo to collection "
-                                                >
-                                                    <Plus size={18} />
-                                                </button>
-                                            </div>
-                                            <div className='absolute bottom-4 right-4'>
-
-                                                <DownloadButton
-                                                    photoId={photo.id}
-                                                    photoUrls={{
-                                                        small: photo.urls.small,
-                                                        regular: photo.urls.regular,
-                                                        full: photo.urls.full,
-                                                        raw: photo.urls.raw
-                                                    }}
-                                                    className='z-3'
+                                                aria-label={`View photo by ${photo.user.name}`}
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        handleImageClick(photo.id);
+                                                    }
+                                                }}
+                                            >
+                                                <Image
+                                                    src={photo.urls.small}
+                                                    width={photo.width}
+                                                    height={photo.height}
+                                                    alt={photo.alt_description || "Photo"}
+                                                    className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                    priority={photoIndex < 2 && colIndex < 3}
                                                 />
-
                                             </div>
-                                            <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                                                {photo.user.profile_image?.small && (
-                                                    <Image
-                                                        src={photo.user.profile_image.small}
-                                                        alt={photo.user.name}
-                                                        width={32}
-                                                        height={32}
-                                                        className='rounded-full w-8 h-8 object-cover border-2 border-white/50'
+                                            <div
+                                                onClick={() => handleImageClick(photo.id)}
+                                                className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <div className='absolute top-4 right-4 flex gap-2 z-1'>
+                                                    <div
+                                                        className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                        aria-label="Like photo "
+                                                    >
+                                                        <LikeButton photoId={photo.id} />
+                                                    </div>
+                                                    <div
+                                                        className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                        aria-label="Bookmark photo "
+                                                    >
+                                                        <BookmarkButton photoId={photo.id} />
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                        }}
+                                                        className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                        aria-label="Add photo to collection "
+                                                    >
+                                                        <Plus size={18} />
+                                                    </button>
+                                                </div>
+                                                <div className='absolute bottom-4 right-4'>
+                                                    <DownloadButton
+                                                        photoId={photo.id}
+                                                        photoUrls={{
+                                                            small: photo.urls.small,
+                                                            regular: photo.urls.regular,
+                                                            full: photo.urls.full,
+                                                            raw: photo.urls.raw
+                                                        }}
+                                                        className='z-3'
                                                     />
-                                                )}
-                                                <p className="text-white text-sm font-semibold drop-shadow-md">
-                                                    {photo.user.name}
-                                                </p>
+                                                </div>
+                                                <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                                    {photo.user.profile_image?.small && (
+                                                        <Image
+                                                            src={photo.user.profile_image.small}
+                                                            alt={photo.user.name}
+                                                            width={32}
+                                                            height={32}
+                                                            className='rounded-full w-8 h-8 object-cover border-2 border-white/50'
+                                                        />
+                                                    )}
+                                                    <p className="text-white text-sm font-semibold drop-shadow-md">
+                                                        {photo.user.name}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>
