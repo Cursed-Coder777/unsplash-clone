@@ -19,20 +19,25 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { firstName, lastName, email, username, bio, location, website, instagram, twitter, paypal, messageEnabled, hireEnabled } = body;
+        const { firstName, lastName, email, username, bio, location, website, instagram, twitter, paypal, messageEnabled, hireEnabled, interests } = body;
 
         await connectToDb();
 
-        // Check if username is taken by another user
-        if (username !== body.username) {
+        const currentUser = await User.findById(decoded.userId);
+        if (!currentUser) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        // Check if username is taken by another user if it's changing
+        if (username && username !== currentUser.username) {
             const existingUser = await User.findOne({ username, _id: { $ne: decoded.userId } });
             if (existingUser) {
                 return NextResponse.json({ error: 'Username already taken' }, { status: 400 });
             }
         }
 
-        // Check if email is taken by another user
-        if (email !== body.email) {
+        // Check if email is taken by another user if it's changing
+        if (email && email !== currentUser.email) {
             const existingUser = await User.findOne({ email, _id: { $ne: decoded.userId } });
             if (existingUser) {
                 return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
@@ -54,6 +59,7 @@ export async function POST(request: Request) {
                 paypal,
                 messageEnabled,
                 hireEnabled,
+                interests
             },
             { new: true, runValidators: true }
         ).select('-password');

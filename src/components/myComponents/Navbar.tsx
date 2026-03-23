@@ -5,6 +5,10 @@ import Link from "next/link"
 import { Focus, Search, Menu, X, Plus, Info, Globe, Wand2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import UserMenu from "./UserMenu";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+
 
 const CATEGORIES = [
     "Featured", "Spring", "Wallpapers", "3D Renders", "Nature",
@@ -18,6 +22,8 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState(currentQ)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const router = useRouter()
+    const { data: session, status } = useSession()
+
 
     // Disable body scroll when menu is open
     useEffect(() => {
@@ -82,6 +88,11 @@ const Navbar = () => {
                         <button className="text-sm font-medium text-gray-500 border border-gray-300 px-3 py-1.5 rounded-md hover:border-black hover:text-black transition-all">
                             Submit an image
                         </button>
+
+                        {/* User Profile / Login */}
+                        <div className="flex items-center gap-4 ml-2 border-l border-gray-200 pl-6 h-8">
+                            <UserMenu />
+                        </div>
                     </div>
 
                     {/* Mobile Menu Icon */}
@@ -153,20 +164,7 @@ const Navbar = () => {
 
                         {/* Drawer Footer */}
                         <div className="p-6 bg-gray-50 border-t border-gray-100 mt-auto">
-                            <Link
-                                href="/login"
-                                className="block w-full text-center bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors mb-3"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/register"
-                                className="block w-full text-center border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Join Free
-                            </Link>
+                            <UserMenu variant="drawer" />
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,6 @@
   "name": "my-app",
   "version": "0.1.0",
   "private": true,
-
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.11.1",
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/postcss": "^4.2.1",
     "@types/bcryptjs": "^2.4.6",
@@ -31,6 +31,7 @@
     "mongodb": "^7.1.0",
     "mongoose": "^9.3.1",
     "next": "16.1.6",
+    "next-auth": "^4.24.13",
     "nodemailer": "^8.0.3",
     "pnpm": "^10.32.1",
     "radix-ui": "^1.4.3",

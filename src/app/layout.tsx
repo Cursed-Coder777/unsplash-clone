@@ -6,6 +6,7 @@ import Sidebar from "@/components/myComponents/Sidebar";
 import { Suspense } from "react";
 import Navbar from "@/components/myComponents/Navbar";
 import BottomNav from "@/components/myComponents/BottomNav";
+import { Providers } from "./providers";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,7 +37,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
+     <Providers>
+       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="flex min-h-screen bg-white">
@@ -63,6 +65,7 @@ export default function RootLayout({
         </div>
         <SpeedInsights />
       </body>
+     </Providers>
     </html>
   );
 }

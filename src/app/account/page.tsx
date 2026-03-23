@@ -10,17 +10,16 @@ export default async function AccountPage() {
     const token = cookieStore.get('token')?.value;
 
     if (!token) {
-        redirect('/login');
+        // redirect('/login');
     }
-
-    const decoded = verifyToken(token);
+    
+    const decoded = verifyToken(token || '');
     if (!decoded || typeof decoded === 'string') {
-        // If token is invalid or expired, redirect to login
         redirect('/login');
     }
 
     await connectToDb();
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await User.findById((decoded as any).userId).select('-password');
     
     if (!user) {
         redirect('/login');

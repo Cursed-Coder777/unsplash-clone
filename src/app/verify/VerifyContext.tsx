@@ -96,8 +96,11 @@ export default function VerifyContent() {
             }
 
             setSuccess('Email verified successfully! Redirecting...');
+            // Dispatch event to refresh UserMenu
+            window.dispatchEvent(new CustomEvent('authChanged'));
             setTimeout(() => {
                 router.push('/home');
+                router.refresh();
             }, 2000);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Verification failed');
