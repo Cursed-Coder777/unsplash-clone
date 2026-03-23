@@ -1,5 +1,4 @@
-// src/app/home/photo/[id]/page.tsx
-import { Bookmark, Plus, Wand2, Info, MoreHorizontal, Calendar, Disc, CircleCheck, ChevronDown } from 'lucide-react';
+import { Bookmark, Plus, Wand2, Info, MoreHorizontal, Calendar, CircleCheck, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -7,6 +6,7 @@ import DownloadButton from '@/components/myComponents/DownloadButton';
 import ShareMenu from '@/components/myComponents/ShareMenu';
 import ScrollToTop from '@/components/myComponents/ScrollToTop';
 import BookmarkButton from '@/components/myComponents/BookmarkButton';
+import LikeButton from '@/components/myComponents/LikeButton';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -46,6 +46,20 @@ async function getPhoto(id: string) {
   return res.json();
 }
 
+async function getTotalLikes(photoId: string): Promise<number> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/unsplash/photo/${photoId}/like`, {
+      cache: 'no-store'
+    });
+    const data = await res.json();
+    return data.likesCount ?? 0;
+  } catch (error) {
+    console.error('Failed to fetch likes:', error);
+    return 0;
+  }
+}
+
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
@@ -57,7 +71,6 @@ function formatDate(dateStr: string) {
   return `Published on ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
 }
 
-
 export default async function PhotoPage({ params }: Props) {
   const { id } = await params;
   const photo: UnsplashPhoto | null = await getPhoto(id);
@@ -65,17 +78,17 @@ export default async function PhotoPage({ params }: Props) {
 
   if (!photo) return notFound();
 
+  // ✅ Fetch total likes from database
+  const totalLikes = await getTotalLikes(id);
+
   return (
-
-
     <div className="bg-white min-h-screen pb-20">
       <ScrollToTop />
       <div className="max-w-[1440px] mx-auto px-4 lg:px-12 py-6">
 
         {/* 👤 Header Section - Responsive */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          {/* Back To Home */}
-
+          {/* User Info */}
           <div className="flex items-center gap-3">
             <Image
               src={photo.user.profile_image.small}
@@ -90,8 +103,15 @@ export default async function PhotoPage({ params }: Props) {
             </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex items-center gap-2 lg:gap-3">
             <div className="flex items-center border border-gray-300 rounded-lg divide-x divide-gray-300 overflow-hidden">
+              {/* ❤️ Like Button with total likes */}
+              <LikeButton
+                photoId={photo.id}
+                initialLikesCount={totalLikes}
+                size={24}
+              />
               <BookmarkButton photoId={photo.id} />
               <button className="px-3 py-2 text-gray-500 hover:text-black hover:bg-gray-50 transition">
                 <Plus size={18} />
@@ -116,7 +136,7 @@ export default async function PhotoPage({ params }: Props) {
           </div>
         </div>
 
-        {/* 🖼️ Main Image Section - Fixed scaling */}
+        {/* 🖼️ Main Image Section */}
         <div className="flex justify-center mb-8 lg:mb-12">
           <div className="relative w-full flex justify-center bg-gray-50 rounded-lg overflow-hidden">
             <img
@@ -127,7 +147,7 @@ export default async function PhotoPage({ params }: Props) {
           </div>
         </div>
 
-        {/* 📊 Stats Section - Grid on mobile */}
+        {/* 📊 Stats Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 border-b border-gray-100 pb-10">
           <div className="grid grid-cols-2 gap-8 sm:gap-16">
             <div className="flex flex-col">

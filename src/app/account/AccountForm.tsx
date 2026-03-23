@@ -82,11 +82,7 @@ export default function AccountForm({ user }: { user: UserData }) {
 
   return (
     <div>
-        <nav>
-            <Link href='/home'>
-                <RiUnsplashFill size={40} className='text-black cursor-pointer transition-colors m-4 lg:m-2' />
-            </Link>
-        </nav>
+       
 
         <div className="max-w-[1440px] mx-auto px-2 py-8 md:py-12 md:flex font-sans">
             {/* Sidebar */}

@@ -9,7 +9,7 @@ interface BookmarkButtonProps {
     className?: string;
 }
 
-export default function BookmarkButton({ photoId, size = 20, className = '' }: BookmarkButtonProps) {
+export default function BookmarkButton({ photoId, size = 18, className = '' }: BookmarkButtonProps) {
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -17,7 +17,6 @@ export default function BookmarkButton({ photoId, size = 20, className = '' }: B
     useEffect(() => {
         const checkBookmark = async () => {
             try {
-                // ✅ Updated API path
                 const res = await fetch(`/api/user/bookmarks/${photoId}`);
                 const data = await res.json();
                 setIsBookmarked(data.isBookmarked);
@@ -30,18 +29,22 @@ export default function BookmarkButton({ photoId, size = 20, className = '' }: B
 
     const handleToggle = async () => {
         if (loading) return;
-
+        
         setLoading(true);
-
+        
+        // Optimistic update
+        const newIsBookmarked = !isBookmarked;
+        setIsBookmarked(newIsBookmarked);
+        
         try {
-            // ✅ Updated API path
             const res = await fetch(`/api/user/bookmarks/${photoId}`, {
                 method: 'POST',
             });
             const data = await res.json();
-            console.log('Toggle bookmark response:', data);
             setIsBookmarked(data.isBookmarked);
         } catch (error) {
+            // Revert on error
+            setIsBookmarked(!newIsBookmarked);
             console.error('Toggle bookmark error:', error);
         } finally {
             setLoading(false);
@@ -56,13 +59,17 @@ export default function BookmarkButton({ photoId, size = 20, className = '' }: B
                 handleToggle();
             }}
             disabled={loading}
-            className={`${className} transition-colors cursor-pointer w-[40px] h-[32px] flex items-center justify-center`}
+            className={`w-[40px] h-[32px] flex items-center justify-center rounded-lg transition-all duration-200 cursor-pointer ${
+                isBookmarked 
+                    ? 'text-yellow-500' 
+                    : 'text-gray-500 hover:text-yellow-500'
+            } ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
             aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
         >
             <Bookmark
                 size={size}
                 fill={isBookmarked ? '#F0B100' : 'none'}
-                className={isBookmarked ? 'text-yellow-500' : 'text-gray-600 hover:text-black'}
+                className="transition-colors"
             />
         </button>
     );

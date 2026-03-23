@@ -7,6 +7,7 @@ import { Bookmark, Plus, Download, Heart, Scroll } from 'lucide-react'
 import DownloadButton from '@/components/myComponents/DownloadButton'
 import ScrollToTop from '@/components/myComponents/ScrollToTop'
 import BookmarkButton from '@/components/myComponents/BookmarkButton'
+import LikeButton from '@/components/myComponents/LikeButton'
 
 interface UnsplashPhoto {
     id: string
@@ -259,6 +260,7 @@ const Home = () => {
                                             onClick={() => handleImageClick(photo.id)}
                                             className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <div className='absolute top-4 right-4 flex gap-2 z-1'>
+                                               
                                                 <div
                                                     className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
                                                     aria-label="Bookmark photo "

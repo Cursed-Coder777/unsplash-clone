@@ -31,6 +31,15 @@ const userSchema = new mongoose.Schema({
         savedAt: { type: Date, default: Date.now },
         photoData: { type: Object, default: null }  // Optional: store photo info
     }],
+
+     // ✅ Like field
+    likedPhotos: {
+        type: [{
+            photoId: { type: String, required: true },
+            likedAt: { type: Date, default: Date.now }
+        }],
+        default: []
+    },
     otp: {
         code: { type: String },
         expiresAt: { type: Date }
