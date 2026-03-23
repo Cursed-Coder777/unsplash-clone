@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -16,8 +16,13 @@ export const metadata: Metadata = {
   title: "Unsplash Clone | High Quality Wallpapers & Photos",
   description: "A beautiful Unsplash clone built with Next.js, featuring a high-performance masonry grid and seamless photo discovery.",
   keywords: ["photography", "wallpapers", "free photos", "unsplash clone", "nextjs"],
+};
+
+export const viewport: Viewport = {
   themeColor: "#ffffff",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
