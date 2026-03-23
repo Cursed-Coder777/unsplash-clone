@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Wand2, AlertCircle } from "lucide-react";
+import { Loader2, Wand2, AlertCircle, Download } from "lucide-react";
 import Image from "next/image";
 import ScrollToTop from "@/components/myComponents/ScrollToTop";
 
@@ -128,8 +128,20 @@ export default function AIImageGenerator() {
                                 />
                                 {/* Overlay hover effect */}
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <Button variant="secondary" className="rounded-full shadow-lg" onClick={() => window.open(image, '_blank')}>
-                                        View Full Resolution
+                                    <Button 
+                                        variant="secondary" 
+                                        className="rounded-full shadow-lg" 
+                                        onClick={() => {
+                                            const a = document.createElement('a');
+                                            a.href = image;
+                                            a.download = `ai-generated.jpg`;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                        }}
+                                    >
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Download Image
                                     </Button>
                                 </div>
                             </div>
