@@ -7,6 +7,9 @@ import ShareMenu from '@/components/myComponents/ShareMenu';
 import ScrollToTop from '@/components/myComponents/ScrollToTop';
 import BookmarkButton from '@/components/myComponents/BookmarkButton';
 import LikeButton from '@/components/myComponents/LikeButton';
+import { Metadata } from 'next';
+
+import Breadcrumbs from '@/components/myComponents/Breadcrumbs';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -34,16 +37,49 @@ interface UnsplashPhoto {
   likes: number;
   width: number;
   height: number;
+  color: string | null;
   tags: Array<{ title: string }>;
 }
 
-async function getPhoto(id: string) {
+async function getPhoto(id: string): Promise<UnsplashPhoto | null> {
   const res = await fetch(
     `https://api.unsplash.com/photos/${id}?client_id=${process.env.UNSPLASH_ACCESS_KEY}`,
     { next: { revalidate: 3600 } }
   );
   if (!res.ok) return null;
   return res.json();
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const photo = await getPhoto(id);
+
+  if (!photo) return { title: 'Photo Not Found' };
+
+  const title = photo.alt_description || photo.description || `Photo by ${photo.user.name}`;
+  const description = photo.description || `Download this high-quality photo by ${photo.user.name} on Unsplash Clone. Free for personal and commercial use.`;
+
+  return {
+    title: `${title} | Unsplash Clone`,
+    description,
+    openGraph: {
+      title: title,
+      description: description,
+      images: [{ url: photo.urls.regular, width: photo.width, height: photo.height }],
+      type: 'article',
+      publishedTime: photo.created_at,
+      authors: [photo.user.name],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: title,
+      description: description,
+      images: [photo.urls.regular],
+    },
+    alternates: {
+      canonical: `/home/photo/${id}`,
+    },
+  };
 }
 
 async function getTotalLikes(photoId: string): Promise<number> {
@@ -74,17 +110,42 @@ function formatDate(dateStr: string) {
 export default async function PhotoPage({ params }: Props) {
   const { id } = await params;
   const photo: UnsplashPhoto | null = await getPhoto(id);
-  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/home/photo/${id}`;
 
   if (!photo) return notFound();
 
-  // ✅ Fetch total likes from database
   const totalLikes = await getTotalLikes(id);
+  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/home/photo/${id}`;
+
+  // JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ImageObject',
+    contentUrl: photo.urls.full,
+    description: photo.description || photo.alt_description,
+    name: photo.alt_description || 'Unsplash Photo',
+    author: {
+      '@type': 'Person',
+      name: photo.user.name,
+    },
+    datePublished: photo.created_at,
+    thumbnailUrl: photo.urls.small,
+  };
+
+  const breadcrumbItems = [
+    { label: 'Photos', href: '/home' },
+    { label: photo.alt_description || 'Photo', href: `/home/photo/${id}`, active: true },
+  ];
 
   return (
     <div className="bg-white min-h-screen pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ScrollToTop />
       <div className="max-w-[1440px] mx-auto px-4 lg:px-12 py-6">
+        <Breadcrumbs items={breadcrumbItems} />
+        {/* ... Rest of the component ... */}
 
         {/* 👤 Header Section - Responsive */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -138,11 +199,16 @@ export default async function PhotoPage({ params }: Props) {
 
         {/* 🖼️ Main Image Section */}
         <div className="flex justify-center mb-8 lg:mb-12">
-          <div className="relative w-full flex justify-center bg-gray-50 rounded-lg overflow-hidden">
-            <img
+          <div className="relative w-full flex justify-center bg-gray-50 rounded-lg overflow-hidden min-h-[50vh]">
+            <Image
               src={photo.urls.regular}
               alt={photo.alt_description || 'Photo'}
+              width={photo.width}
+              height={photo.height}
               className="max-h-[70vh] lg:max-h-[85vh] w-auto h-full object-contain shadow-sm"
+              priority
+              sizes="(max-width: 1024px) 100vw, 1200px"
+              style={{ backgroundColor: photo.color || 'transparent' }}
             />
           </div>
         </div>

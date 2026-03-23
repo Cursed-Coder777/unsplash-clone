@@ -126,14 +126,14 @@ export default function AccountForm({ user }: { user: UserData }) {
 
     return (
         <div>
-            <div className="max-w-[1440px] mx-auto px-2 py-8 md:py-12 md:flex font-sans text-[#111]">
+            <div className="max-w-[1440px] mx-auto px-4 py-8 md:py-12 md:flex font-sans text-[#111]">
                 {/* Sidebar */}
                 <div className="w-full md:w-[280px] pr-8 mb-8 md:mb-0 flex-shrink-0">
                     <h3 className="font-bold text-[18px] mb-5">Account settings</h3>
                     <ul className="space-y-[14px] text-[15px] text-[#767676]">
-                        <li><Link href="/account" className="hover:text-black transition-colors">Edit profile</Link></li>
+                        <li><Link href="/account" className="hover:text-black transition-colors text-black font-semibold">Edit profile</Link></li>
                         <li><Link href="#" className="hover:text-black transition-colors">Email settings</Link></li>
-                        <li><Link href="/account/changePassword" title="Current settings" className="font-semibold text-black">Change password</Link></li>
+                        <li><Link href="/account/changePassword" title="Current settings" className="hover:text-black transition-colors">Change password</Link></li>
                         <li><Link href="#" className="hover:text-black transition-colors">Applications</Link></li>
                         <li><Link href="/account/close" className="hover:text-black transition-colors">Close account</Link></li>
                     </ul>
@@ -244,7 +244,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                         <div className="mb-10">
                             <h2 className="text-[18px] font-bold mb-4">About</h2>
 
-                            <div className="flex gap-4 mb-[18px]">
+                            <div className="sm:flex gap-4 mb-[18px]">
                                 <div className="flex-1">
                                     <label htmlFor="location" className="block text-[15px] mb-1.5 font-medium">Location (country)</label>
                                     <select
@@ -260,7 +260,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                                         ))}
                                     </select>
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 mt-6 sm:mt-0">
                                     <label htmlFor="website" className="block text-[15px] mb-1.5 font-medium">Personal site/portfolio</label>
                                     <input
                                         id="website"
@@ -273,8 +273,8 @@ export default function AccountForm({ user }: { user: UserData }) {
                                 </div>
                             </div>
 
-                            <div className="flex gap-4">
-                                <div className="flex-1">
+                            <div className="sm:flex gap-4">
+                                <div className="flex-1 ">
                                     <label htmlFor="bio" className="block text-[15px] mb-1.5 font-medium">Bio</label>
                                     <textarea
                                         id="bio"
@@ -285,7 +285,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                                         placeholder="Tell us about yourself..."
                                     />
                                 </div>
-                                <div className="flex-1 relative">
+                                <div className="flex-1 relative mt-6 sm:mt-0">
                                     <label htmlFor="interests" className="block text-[15px] mb-1.5 font-medium">
                                         Interests <span className="text-[#767676] font-normal">(maximum 10 tags)</span>
                                     </label>
@@ -349,7 +349,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                         <div className="mb-10">
                             <h2 className="text-[18px] font-bold mb-4">Social</h2>
 
-                            <div className="flex gap-4">
+                            <div className="sm:flex gap-4">
                                 <div className="flex-1">
                                     <label htmlFor="instagram" className="block text-[15px] mb-1.5 font-medium">Instagram username</label>
                                     <div className="relative">
@@ -366,7 +366,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                                         So that we can feature you on @unsplash
                                     </p>
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 mt-6 sm:mt-0">
                                     <label htmlFor="twitter" className="block text-[15px] mb-1.5 font-medium">X (Twitter) username</label>
                                     <input
                                         id="twitter"

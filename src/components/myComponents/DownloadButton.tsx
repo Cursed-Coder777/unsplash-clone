@@ -3,6 +3,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from '@/components/myComponents/Toast';
 
 // 📦 Size options with actual dimensions
 const SIZE_OPTIONS = [
@@ -59,6 +62,9 @@ export default function DownloadButton({
   const [downloading, setDownloading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -92,13 +98,26 @@ export default function DownloadButton({
     }
   };
 
-  const handleDownload = async (sizeValue: string, unsplashField: string) => {
+  const handleDownload = async (sizeValue: string, unsplashField: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // ✅ Auth check - User must be logged in to download
+    if (status !== 'authenticated') {
+      toast.error('Please login to download photos');
+      // setTimeout(() => router.push('/login'), 1500);
+      return;
+    }
+
     setDownloading(true);
 
     try {
       if (photoUrls && photoUrls[unsplashField as keyof typeof photoUrls]) {
         const imageUrl = photoUrls[unsplashField as keyof typeof photoUrls];
         await forceDownload(imageUrl, `unsplash-${photoId}-${sizeValue}.jpg`);
+        toast.success('Download started!');
       } else {
         const response = await fetch(`/api/unsplash/download/${photoId}?size=${sizeValue}`);
         const blob = await response.blob();
@@ -112,27 +131,41 @@ export default function DownloadButton({
         document.body.removeChild(link);
 
         URL.revokeObjectURL(blobUrl);
+        toast.success('Download started!');
       }
     } catch (error) {
       console.error('Download failed:', error);
+      toast.error('Download failed. Please try again.');
     } finally {
       setDownloading(false);
       setIsOpen(false);
     }
   };
 
+  const handleMainDownload = (e: React.MouseEvent) => {
+    handleDownload('medium', 'regular', e);
+  };
+
+  const handleDropdownToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(false);
+  };
+
   return (
-    <div className="relative inline-block z-40" ref={dropdownRef}>
+    <div className="relative inline-block" ref={dropdownRef}>
       {/* Button container with rounded corners */}
       <div className="flex rounded-lg overflow-hidden border hover:border-black border-gray-300 transition-colors duration-200">
 
         {/* Download button */}
         <button
-          onClick={(e) => {
-            handleDownload('medium', 'regular')
-            e.preventDefault();
-            e.stopPropagation();
-          }}
+          onClick={handleMainDownload}
           disabled={downloading}
           className="px-4 py-2 bg-white text-gray-700 hover:text-black hover:border-black transition-all duration-200 flex items-center gap-2 min-w-[110px] justify-center cursor-pointer"
         >
@@ -151,11 +184,7 @@ export default function DownloadButton({
 
         {/* ✅ Arrow button with working animation and hover effect */}
         <button
-          onClick={(e) => {
-            setIsOpen(!isOpen)
-            e.preventDefault();
-            e.stopPropagation();
-          }}
+          onClick={handleDropdownToggle}
           disabled={downloading}
           className="px-2 py-2 bg-white text-gray-700 hover:text-black hover:bg-gray-50 transition-all duration-200 cursor-pointer flex items-center justify-center group"
         >
@@ -172,18 +201,14 @@ export default function DownloadButton({
           {/* Backdrop to close on click outside */}
           <div
             className="fixed inset-0 z-40 cursor-default"
-            onClick={(e) => {
-              setIsOpen(false)
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            onClick={handleBackdropClick}
           />
 
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
             {SIZE_OPTIONS.map((option) => (
               <button
                 key={option.value}
-                onClick={() => handleDownload(option.value, option.unsplashField)}
+                onClick={(e) => handleDownload(option.value, option.unsplashField, e)}
                 disabled={downloading}
                 className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors group cursor-pointer"
               >

@@ -233,10 +233,11 @@ const Home = () => {
                             <div key={colIndex} className="flex-1 flex flex-col gap-4">
                                 {column.map((photo, photoIndex) => (
                                     <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer">
-                                        <div key={photo.id}
-                                            className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
-                                            onClick={() => handleImageClick(photo.id)}
-                                            role="button"
+                                            <div 
+                                                className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
+                                                style={{ backgroundColor: photo.color || '#f3f3f3' }}
+                                                onClick={() => handleImageClick(photo.id)}
+                                                role="button"
                                             aria-label={`View photo by ${photo.user.name}`}
                                             tabIndex={0}
                                             onKeyDown={(e) => {
@@ -252,15 +253,21 @@ const Home = () => {
                                                 height={photo.height}
                                                 alt={photo.alt_description || "Photo"}
                                                 className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                                                // loading={photoIndex < 1 && colIndex === 0 ? "eager" : "lazy"}
-                                                priority={photoIndex < 1 && colIndex < 3}
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                priority={photoIndex < 2 && colIndex < 3}
                                             />
                                         </div>
                                         <div
                                             onClick={() => handleImageClick(photo.id)}
                                             className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <div className='absolute top-4 right-4 flex gap-2 z-1'>
-                                               
+
+                                                <div
+                                                    className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                    aria-label="Like photo "
+                                                >
+                                                    <LikeButton photoId={photo.id} />
+                                                </div>
                                                 <div
                                                     className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
                                                     aria-label="Bookmark photo "
@@ -268,6 +275,10 @@ const Home = () => {
                                                     <BookmarkButton photoId={photo.id} />
                                                 </div>
                                                 <button
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                    }}
                                                     className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
                                                     aria-label="Add photo to collection "
                                                 >
