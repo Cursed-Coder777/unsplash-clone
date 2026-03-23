@@ -9,7 +9,8 @@ import {
     ImageIcon,
     Languages,
     PenTool,
-    TextAlignJustify
+    TextAlignJustify,
+    Wand2
 } from 'lucide-react';
 import Link from 'next/link';
 import LanguageDropdown from '@/components/myComponents/LanguageDropDown';
@@ -29,6 +30,9 @@ const Sidebar = () => {
                     <RiUnsplashFill size={30} className='text-black cursor-pointer transition-colors mb-2' />
                 </Link>
                 <div className="flex flex-col gap-5 items-center">
+                    <Link href="/home/generate">
+                        <Wand2 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    </Link>
                     <ImageIcon size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                     <PenTool size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                     <Compass size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />

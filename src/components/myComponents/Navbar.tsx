@@ -2,7 +2,7 @@
 'use client'
 
 import Link from "next/link"
-import { Focus, Search, Menu, X, Plus, Info, Globe } from "lucide-react"
+import { Focus, Search, Menu, X, Plus, Info, Globe, Wand2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -73,6 +73,9 @@ const Navbar = () => {
                     </form>
 
                     <div className="hidden lg:flex items-center gap-6">
+                        <Link href="/home/generate" className="text-sm font-medium text-gray-600 hover:text-black transition-colors flex items-center gap-1">
+                            <Wand2 size={16} /> Generate Image
+                        </Link>
                         <Link href="/plus" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
                             Get Unsplash+
                         </Link>
@@ -115,6 +118,12 @@ const Navbar = () => {
                         <div className="flex-1 overflow-y-auto py-6">
                             <div className="px-6 space-y-8">
                                 <div className="space-y-4">
+                                    <Link href="/home/generate" className="flex items-center gap-4 text-[15px] font-medium text-gray-900 group" onClick={() => setIsMenuOpen(false)}>
+                                        <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg group-hover:bg-black group-hover:text-white transition-colors">
+                                            <Wand2 size={18} />
+                                        </div>
+                                        <span>Generate Image</span>
+                                    </Link>
                                     <Link href="/plus" className="flex items-center gap-4 text-[15px] font-medium text-gray-900 group" onClick={() => setIsMenuOpen(false)}>
                                         <div className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-lg group-hover:bg-black group-hover:text-white transition-colors">
                                             <Plus size={18} />
