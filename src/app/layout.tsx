@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import Sidebar from "@/components/myComponents/Sidebar";
+import { Suspense } from "react";
+import Navbar from "@/components/myComponents/Navbar";
+import BottomNav from "@/components/myComponents/BottomNav";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,8 +39,29 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <SpeedInsights/>
+        <div className="flex min-h-screen bg-white">
+          {/* Sidebar - Hidden on small screens (handled in Sidebar component too) */}
+          <div className="hidden lg:block lg:w-16 fixed left-0 top-0 h-full z-50">
+            <Sidebar />
+          </div>
+
+          {/* Main content */}
+          <div className="flex flex-col flex-1 w-full lg:pl-16">
+            <Suspense fallback={<div className="h-16 animate-pulse bg-gray-100"></div>}>
+              <Navbar />
+            </Suspense>
+
+            <main className="flex-1 mt-[110px] md:mt-[120px] pb-20 lg:pb-0">
+              {children}
+            </main>
+          </div>
+
+          {/* Mobile Bottom Navigation */}
+          <BottomNav />
+
+
+        </div>
+        <SpeedInsights />
       </body>
     </html>
   );
