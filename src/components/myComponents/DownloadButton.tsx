@@ -122,13 +122,17 @@ export default function DownloadButton({
   };
 
   return (
-    <div className="relative inline-block" ref={dropdownRef}>
+    <div className="relative inline-block z-40" ref={dropdownRef}>
       {/* Button container with rounded corners */}
       <div className="flex rounded-lg overflow-hidden border hover:border-black border-gray-300 transition-colors duration-200">
-        
+
         {/* Download button */}
         <button
-          onClick={() => handleDownload('medium', 'regular')}
+          onClick={(e) => {
+            handleDownload('medium', 'regular')
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           disabled={downloading}
           className="px-4 py-2 bg-white text-gray-700 hover:text-black hover:border-black transition-all duration-200 flex items-center gap-2 min-w-[110px] justify-center cursor-pointer"
         >
@@ -144,29 +148,37 @@ export default function DownloadButton({
             </>
           )}
         </button>
-        
+
         {/* ✅ Arrow button with working animation and hover effect */}
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={(e) => {
+            setIsOpen(!isOpen)
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           disabled={downloading}
           className="px-2 py-2 bg-white text-gray-700 hover:text-black hover:bg-gray-50 transition-all duration-200 cursor-pointer flex items-center justify-center group"
         >
-          <ChevronDown 
-            size={18} 
+          <ChevronDown
+            size={18}
             className={`transition-all duration-300 ease-in-out hover:scale-110 hover:text-black ${isOpen ? 'rotate-180' : ''}`}
           />
         </button>
       </div>
-      
+
       {/* Dropdown menu */}
       {isOpen && (
         <>
           {/* Backdrop to close on click outside */}
-          <div 
+          <div
             className="fixed inset-0 z-40 cursor-default"
-            onClick={() => setIsOpen(false)}
+            onClick={(e) => {
+              setIsOpen(false)
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           />
-          
+
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
             {SIZE_OPTIONS.map((option) => (
               <button

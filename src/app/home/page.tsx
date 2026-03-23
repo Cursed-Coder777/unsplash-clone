@@ -3,7 +3,10 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
-import { Bookmark, Plus, Download, Heart } from 'lucide-react'
+import { Bookmark, Plus, Download, Heart, Scroll } from 'lucide-react'
+import DownloadButton from '@/components/myComponents/DownloadButton'
+import ScrollToTop from '@/components/myComponents/ScrollToTop'
+import BookmarkButton from '@/components/myComponents/BookmarkButton'
 
 interface UnsplashPhoto {
     id: string
@@ -209,101 +212,115 @@ const Home = () => {
     }
 
     return (
-        <div className="flex flex-col container mx-auto px-4 ">
-            <h1 className="text-2xl font-bold my-4 capitalize">
-                {q}
-            </h1>
 
-            {loading && photos.length === 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className="bg-gray-100 aspect-[3/4] animate-pulse"></div>
-                    ))}
-                </div>
-            ) : (
-                <div className='flex flex-col lg:flex-row gap-4'>
-                    {columns.map((column, colIndex) => (
-                        <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                            {column.map((photo, photoIndex) => (
-                                <div key={photo.id}
-                                    className="group relative overflow-hidden break-inside-avoid cursor-pointer rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    onClick={() => handleImageClick(photo.id)}
-                                    role="button"
-                                    aria-label={`View photo by ${photo.user.name}`}
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            e.preventDefault();
-                                            handleImageClick(photo.id);
-                                        }
-                                    }}
-                                >
-                                    <Image
-                                        src={photo.urls.small}
-                                        width={photo.width}
-                                        height={photo.height}
-                                        alt={photo.alt_description || "Photo"}
-                                        className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                                        // loading={photoIndex < 1 && colIndex === 0 ? "eager" : "lazy"}
-                                        priority={photoIndex < 1 && colIndex < 3}
-                                    />
-                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div className='absolute top-4 right-4 flex gap-2'>
-                                            <button
-                                                className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                aria-label="Bookmark photo"
-                                            >
-                                                <Bookmark size={18} />
-                                            </button>
-                                            <button
-                                                className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                aria-label="Add photo to collection"
-                                            >
-                                                <Plus size={18} />
-                                            </button>
+        <>
+
+            <div className="flex flex-col container mx-auto px-4 ">
+                <h1 className="text-2xl font-bold my-4 capitalize">
+                    {q}
+                </h1>
+
+                {loading && photos.length === 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="bg-gray-100 aspect-[3/4] animate-pulse"></div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className='flex flex-col lg:flex-row gap-4'>
+                        {columns.map((column, colIndex) => (
+                            <div key={colIndex} className="flex-1 flex flex-col gap-4">
+                                {column.map((photo, photoIndex) => (
+                                    <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer">
+                                        <div key={photo.id}
+                                            className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
+                                            onClick={() => handleImageClick(photo.id)}
+                                            role="button"
+                                            aria-label={`View photo by ${photo.user.name}`}
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    handleImageClick(photo.id);
+                                                }
+                                            }}
+                                        >
+                                            <Image
+                                                src={photo.urls.small}
+                                                width={photo.width}
+                                                height={photo.height}
+                                                alt={photo.alt_description || "Photo"}
+                                                className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                                                // loading={photoIndex < 1 && colIndex === 0 ? "eager" : "lazy"}
+                                                priority={photoIndex < 1 && colIndex < 3}
+                                            />
                                         </div>
-                                        <div className='absolute bottom-4 right-4'>
-                                            <button
-                                                className='bg-white/90 backdrop-blur-sm p-2 rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                aria-label="Download photo"
-                                            >
-                                                <Download size={18} />
-                                            </button>
-                                        </div>
-                                        <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                                            {photo.user.profile_image?.small && (
-                                                <Image
-                                                    src={photo.user.profile_image.small}
-                                                    alt={photo.user.name}
-                                                    width={32}
-                                                    height={32}
-                                                    className='rounded-full w-8 h-8 object-cover border-2 border-white/50'
+                                        <div
+                                            onClick={() => handleImageClick(photo.id)}
+                                            className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div className='absolute top-4 right-4 flex gap-2 z-1'>
+                                                <div
+                                                    className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                    aria-label="Bookmark photo "
+                                                >
+                                                    <BookmarkButton photoId={photo.id} />
+                                                </div>
+                                                <button
+                                                    className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                    aria-label="Add photo to collection "
+                                                >
+                                                    <Plus size={18} />
+                                                </button>
+                                            </div>
+                                            <div className='absolute bottom-4 right-4'>
+
+                                                <DownloadButton
+                                                    photoId={photo.id}
+                                                    photoUrls={{
+                                                        small: photo.urls.small,
+                                                        regular: photo.urls.regular,
+                                                        full: photo.urls.full,
+                                                        raw: photo.urls.raw
+                                                    }}
+                                                    className='z-3'
                                                 />
-                                            )}
-                                            <p className="text-white text-sm font-semibold drop-shadow-md">
-                                                {photo.user.name}
-                                            </p>
+
+                                            </div>
+                                            <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                                {photo.user.profile_image?.small && (
+                                                    <Image
+                                                        src={photo.user.profile_image.small}
+                                                        alt={photo.user.name}
+                                                        width={32}
+                                                        height={32}
+                                                        className='rounded-full w-8 h-8 object-cover border-2 border-white/50'
+                                                    />
+                                                )}
+                                                <p className="text-white text-sm font-semibold drop-shadow-md">
+                                                    {photo.user.name}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-            )}
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                )}
 
-            <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
-                {loadingMore && (
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>
+                <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
+                    {loadingMore && (
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>
+                    )}
+                </div>
+
+                {photos.length === 0 && !loading && (
+                    <div className="text-center py-20">
+                        <p className="text-gray-500 text-lg">No photos found for &quot;{q}&quot;</p>
+                    </div>
                 )}
             </div>
-
-            {photos.length === 0 && !loading && (
-                <div className="text-center py-20">
-                    <p className="text-gray-500 text-lg">No photos found for &quot;{q}&quot;</p>
-                </div>
-            )}
-        </div>
+        </>
     )
 }
 

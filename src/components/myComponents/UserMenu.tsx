@@ -91,10 +91,10 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
         const trigger = user ? (
             <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
                 {user.avatar && user.avatar.trim() !== '' ? (
-                    <img 
-                        src={user.avatar} 
-                        alt="User" 
-                        className="w-full h-full object-cover" 
+                    <img
+                        src={user.avatar}
+                        alt="User"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                             // Hide broken image and show fallback
                             e.currentTarget.style.display = 'none';
@@ -122,13 +122,35 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
 
                 {user && isOpen && (
                     <div className="absolute left-full ml-4 top-[-20%] w-64 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-[9999] animate-in fade-in slide-in-from-left-2 duration-200"
-                    style={{top:'-100px',right:'-250px'}}
+                        style={{ top: '-100px', right: '-250px' }}
                     >
+                       <div className="flex items-center gap-x-0.5 gap-y-0.5 px-4 py-3 border-b border-gray-50 mb-1">
+                         {/* Avatar */}
+                        <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
+                            {user.avatar && user.avatar.trim() !== '' ? (
+                                <img
+                                    src={user.avatar}
+                                    alt="User"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // Hide broken image and show fallback
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                />
+                            ) : null}
+                            {(!user.avatar || user.avatar.trim() === '') && (
+                                <span className="text-gray-600 text-sm font-bold uppercase">
+                                    {user.firstName?.[0]}{user.lastName?.[0]}
+                                </span>
+                            )}
+                        </div>
                         <div className="px-4 py-3 border-b border-gray-50 mb-1">
                             <div className="font-bold text-gray-900 text-sm">{user.firstName} {user.lastName}</div>
                             <div className="text-xs text-gray-500">@{user.username}</div>
                         </div>
-                        
+                       </div>
+
                         <div className="px-1">
                             <Link href="/profile" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                                 <User size={16} className="text-gray-400" />
@@ -166,10 +188,10 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
             >
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 border border-gray-100 flex items-center justify-center">
                     {user.avatar && user.avatar.trim() !== '' ? (
-                        <img 
-                            src={user.avatar} 
-                            alt="User" 
-                            className="w-full h-full object-cover" 
+                        <img
+                            src={user.avatar}
+                            alt="User"
+                            className="w-full h-full object-cover"
                             onError={(e) => {
                                 // Hide broken image and show fallback
                                 e.currentTarget.style.display = 'none';

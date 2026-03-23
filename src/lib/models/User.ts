@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     photosCount: { type: Number, default: 0 },
     
+     // ✅ Bookmark field - array of photo IDs
+    bookmarks: [{ 
+        photoId: { type: String, required: true },
+        savedAt: { type: Date, default: Date.now },
+        photoData: { type: Object, default: null }  // Optional: store photo info
+    }],
     otp: {
         code: { type: String },
         expiresAt: { type: Date }
