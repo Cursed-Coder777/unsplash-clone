@@ -17,11 +17,11 @@ interface Collection {
 interface AddToCollectionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    photo: {
+    photo?: {
         id: string;
         urls: { small: string, regular?: string };
         user: { name: string };
-    };
+    } | null;
 }
 
 export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCollectionModalProps) {
@@ -57,6 +57,8 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
         setProcessingId(collectionId);
 
         try {
+            if (!photo) return;
+            
             const body = inCollection 
                 ? { photoToRemove: photo.id }
                 : { photoToAdd: photo };
@@ -97,8 +99,10 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
 
             if (res.ok) {
                 const data = await res.json();
-                // Automatically add photo to new collection
-                await handleTogglePhoto(data.collection._id, false);
+                // Automatically add photo to new collection if photo exists
+                if (photo) {
+                    await handleTogglePhoto(data.collection._id, false);
+                }
                 setIsCreating(false);
                 setNewTitle('');
                 setNewIsPrivate(false);
@@ -121,26 +125,40 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                 className="bg-white w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] sm:max-h-[600px] animate-in slide-in-from-bottom-4 duration-300"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Left Side: Photo Preview */}
+                {/* Left Side: Photo Preview / Info */}
                 <div className="hidden md:block w-2/5 relative bg-gray-50 border-r border-gray-100 h-full min-h-[400px]">
-                    <Image 
-                        src={photo.urls.regular || photo.urls.small}
-                        alt="Photo to add"
-                        layout="fill"
-                        objectFit="cover"
-                        className="opacity-90"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-8">
-                        <p className="text-white text-sm font-medium">Add to collection</p>
-                        <h2 className="text-white text-2xl font-bold mt-1">Organize your workspace</h2>
-                    </div>
+                    {photo ? (
+                        <>
+                            <Image 
+                                src={photo.urls.regular || photo.urls.small}
+                                alt="Photo to add"
+                                layout="fill"
+                                objectFit="cover"
+                                className="opacity-90"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-end p-8">
+                                <p className="text-white text-sm font-medium">Add to collection</p>
+                                <h2 className="text-white text-2xl font-bold mt-1">Organize your workspace</h2>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-gray-50 to-gray-100">
+                            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm mb-6">
+                                <Plus size={40} className="text-gray-300" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900">Create Collection</h2>
+                            <p className="text-gray-500 mt-2">Bring order to your inspiration</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Side: Collections List */}
                 <div className="flex-1 flex flex-col bg-white">
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                        <h3 className="text-xl font-bold text-gray-900">Add to collection</h3>
+                        <h3 className="text-xl font-bold text-gray-900">
+                            {photo ? 'Add to collection' : 'Collections'}
+                        </h3>
                         <button 
                             onClick={onClose}
                             className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-black"
@@ -224,17 +242,17 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                 ) : (
                                     <div className="grid gap-3">
                                         {collections.map((coll) => {
-                                            const inCollection = coll.photos.some(p => p.photoId === photo.id);
+                                            const inCollection = !!(photo && coll.photos.some(p => p.photoId === photo.id));
                                             return (
                                                 <button
                                                     key={coll._id}
-                                                    onClick={() => handleTogglePhoto(coll._id, inCollection)}
-                                                    className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-all group border border-transparent hover:border-gray-100"
+                                                    onClick={() => photo && handleTogglePhoto(coll._id, inCollection)}
+                                                    className={`flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-all group border border-transparent hover:border-gray-100 ${!photo && 'cursor-default'}`}
                                                 >
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden relative">
                                                             {coll.coverPhoto ? (
-                                                                <Image src={coll.coverPhoto} alt="" layout="fill" objectFit="cover" />
+                                                                <Image src={coll.coverPhoto} alt="" fill className="object-cover" />
                                                             ) : (
                                                                 <div className="flex items-center justify-center h-full text-gray-300">
                                                                     <Plus size={24} />
@@ -249,13 +267,15 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${inCollection ? 'bg-black border-black text-white' : 'border-gray-100 text-transparent group-hover:text-gray-300'}`}>
-                                                        {processingId === coll._id ? (
-                                                            <Loader2 size={16} className="animate-spin text-white" />
-                                                        ) : (
-                                                            <Check size={20} />
-                                                        )}
-                                                    </div>
+                                                    {photo && (
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${inCollection ? 'bg-black border-black text-white' : 'border-gray-100 text-transparent group-hover:text-gray-300'}`}>
+                                                            {processingId === coll._id ? (
+                                                                <Loader2 size={16} className="animate-spin" />
+                                                            ) : (
+                                                                <Check size={20} />
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </button>
                                             );
                                         })}

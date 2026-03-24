@@ -22,7 +22,7 @@ export default function CollectionPage() {
             try {
                 const res = await fetch(`/api/collections/${params.id}`);
                 const data = await res.json();
-                
+
                 if (res.ok) {
                     setCollection(data.collection);
                 } else {
@@ -62,7 +62,7 @@ export default function CollectionPage() {
             <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-4">
                 <h2 className="text-2xl font-bold mb-2">Oops!</h2>
                 <p className="text-gray-500 mb-6">{error || 'Collection not found'}</p>
-                <button 
+                <button
                     onClick={() => router.push('/home')}
                     className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors"
                 >
@@ -76,11 +76,11 @@ export default function CollectionPage() {
     // Distribute photos into 3 columns
     const columns: any[][] = [[], [], []];
     const colHeights = [0, 0, 0];
-    
+
     collection.photos.forEach((photoObj: any) => {
         const photo = photoObj.photoData;
         if (!photo) return;
-        
+
         const targetCol = colHeights.indexOf(Math.min(...colHeights));
         columns[targetCol].push(photo);
         // Estimate height based on typical aspect ratio
@@ -92,28 +92,28 @@ export default function CollectionPage() {
             {/* Header */}
             <div className="mb-12">
                 <div className="flex items-center gap-4 text-sm font-bold text-gray-400 mb-4 tracking-widest uppercase">
-                    <button 
+                    <button
                         onClick={() => router.back()}
                         className="flex items-center gap-1 hover:text-black transition-colors"
                     >
                         <ArrowLeft size={16} /> Back
                     </button>
                 </div>
-                
+
                 <h1 className="text-4xl md:text-5xl font-black mb-4">{collection.title}</h1>
-                
+
                 {collection.description && (
                     <p className="text-xl text-gray-600 mb-6 max-w-3xl">{collection.description}</p>
                 )}
-                
+
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                             {collection.user?.avatar ? (
-                                <Image 
-                                    src={collection.user.avatar} 
-                                    alt={collection.user.name || 'User'} 
-                                    width={32} height={32} 
+                                <Image
+                                    src={collection.user.avatar}
+                                    alt={collection.user.name || 'User'}
+                                    width={32} height={32}
                                     className="rounded-full"
                                 />
                             ) : (
@@ -148,7 +148,7 @@ export default function CollectionPage() {
                         <div key={colIndex} className="flex-1 flex flex-col gap-4">
                             {column.map((photo) => (
                                 <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer overflow-hidden pb-4">
-                                    <div 
+                                    <div
                                         className="group relative overflow-hidden break-inside-avoid cursor-pointer rounded-xl bg-gray-100"
                                         onClick={() => router.push(`/home/photo/${photo.id}`, { scroll: false })}
                                     >
