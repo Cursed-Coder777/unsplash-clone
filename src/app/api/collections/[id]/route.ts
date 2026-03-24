@@ -8,11 +8,12 @@ import User from '@/lib/models/User';
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         await connectToDb();
-        const collection = await Collection.findById(params.id).populate('user', 'firstName lastName username avatar');
+        const collection = await Collection.findById(id).populate('user', 'firstName lastName username avatar');
 
         if (!collection) {
             return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
@@ -38,9 +39,10 @@ export async function GET(
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         await connectToDb();
         const session = await getServerSession(authOptions);
 
@@ -53,7 +55,7 @@ export async function PUT(
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const collection = await Collection.findById(params.id);
+        const collection = await Collection.findById(id);
         if (!collection) {
             return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
         }
@@ -106,9 +108,10 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         await connectToDb();
         const session = await getServerSession(authOptions);
 
@@ -119,7 +122,7 @@ export async function DELETE(
         const user = await User.findOne({ email: session.user.email });
         if (!user || !user._id) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-        const collection = await Collection.findById(params.id);
+        const collection = await Collection.findById(id);
         if (!collection) {
             return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
         }
@@ -128,7 +131,7 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await Collection.findByIdAndDelete(params.id);
+        await Collection.findByIdAndDelete(id);
 
         return NextResponse.json({ message: 'Collection deleted' });
     } catch (error) {

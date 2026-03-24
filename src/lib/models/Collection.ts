@@ -29,20 +29,6 @@ const collectionSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    }
-});
-
-// Update the updatedAt field on save
-collectionSchema.pre('save', function(next) {
-    this.updatedAt = new Date();
-    next();
-});
+}, { timestamps: true });
 
 export default mongoose.models.Collection || mongoose.model('Collection', collectionSchema);

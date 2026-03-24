@@ -2,13 +2,13 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
-import connectDB from '@/lib/mongodb';
+import { connectToDb } from '@/lib/db';
 import Collection from '@/lib/models/Collection';
 import User from '@/lib/models/User';
 
 export async function GET(request: Request) {
     try {
-        await connectDB();
+        await connectToDb();
         const session = await getServerSession(authOptions);
 
         if (!session || !session.user) {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-        await connectDB();
+        await connectToDb();
         const session = await getServerSession(authOptions);
 
         if (!session || !session.user) {
