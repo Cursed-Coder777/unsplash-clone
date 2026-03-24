@@ -4,7 +4,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { Share2, X, Copy, Check, Twitter, Facebook, Linkedin, Mail } from 'lucide-react';
 import { FaPinterest, FaReddit, FaTelegram, FaWhatsapp } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+
 import { toast } from '@/components/myComponents/Toast';
+import { useSession } from 'next-auth/react';
 
 interface SharePhotoProps {
     isOpen: boolean;
@@ -17,11 +20,18 @@ interface SharePhotoProps {
 }
 
 export default function SharePhoto({ isOpen, onClose, photo }: SharePhotoProps) {
+    const { data: session, status } = useSession();
     const [copied, setCopied] = useState(false);
     const modalRef = useRef<HTMLDivElement>(null);
     const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/home/photo/${photo.id}`;
     const text = photo.title || "Check out this amazing photo on Unsplash Clone!";
 
+    useEffect(() => {
+        if (isOpen && status === 'unauthenticated') {
+            toast.error('Please login to share photos');
+            onClose();
+        }
+    }, [isOpen, status, onClose]);
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -33,6 +43,7 @@ export default function SharePhoto({ isOpen, onClose, photo }: SharePhotoProps) 
         }
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen, onClose]);
+
 
     const copyToClipboard = async () => {
         try {
@@ -47,10 +58,10 @@ export default function SharePhoto({ isOpen, onClose, photo }: SharePhotoProps) 
 
     const shareLinks = [
         {
-            name: 'Twitter',
-            icon: <Twitter size={20} />,
+            name: 'X',
+            icon: <FaXTwitter size={20} />,
             url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`,
-            color: 'bg-[#1DA1F2]'
+            color: 'bg-black'
         },
         {
             name: 'Facebook',
@@ -100,13 +111,13 @@ export default function SharePhoto({ isOpen, onClose, photo }: SharePhotoProps) 
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div 
+            <div
                 ref={modalRef}
                 className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
             >
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
                     <h3 className="text-xl font-bold text-gray-900">Share this photo</h3>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-black"
                     >
@@ -135,13 +146,13 @@ export default function SharePhoto({ isOpen, onClose, photo }: SharePhotoProps) 
                     <div className="relative">
                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Direct Link</label>
                         <div className="flex items-center gap-2 p-1 bg-gray-50 border border-gray-100 rounded-2xl">
-                            <input 
-                                type="text" 
-                                readOnly 
+                            <input
+                                type="text"
+                                readOnly
                                 value={shareUrl}
                                 className="flex-1 bg-transparent px-4 py-3 text-sm text-gray-600 outline-none"
                             />
-                            <button 
+                            <button
                                 onClick={copyToClipboard}
                                 className={`px-6 py-3 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${copied ? 'bg-green-500 text-white' : 'bg-black text-white hover:bg-gray-800'}`}
                             >

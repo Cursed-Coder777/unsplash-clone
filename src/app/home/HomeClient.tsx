@@ -14,6 +14,8 @@ import { PhotoSkeleton } from '@/components/myComponents/Skeleton'
 import AddToCollectionModal from '@/components/myComponents/AddToCollectionModal'
 import SharePhoto from '@/components/myComponents/SharePhoto'
 import Tooltip from '@/components/myComponents/Tooltip'
+import { useSession } from 'next-auth/react'
+import { toast } from '@/components/myComponents/Toast'
 
 export interface UnsplashPhoto {
     id: string
@@ -66,6 +68,7 @@ interface HomeClientProps {
 const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) => {
     const searchParams = useSearchParams()
     const q = searchParams.get('q') || initialQ || 'nature'
+    const { data: session, status } = useSession();
     const router = useRouter()
     const [photos, setPhotos] = useState<UnsplashPhoto[]>(initialPhotos)
     const [loading, setLoading] = useState(false)
@@ -225,8 +228,8 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                 </div>
             )}
 
-            <SearchFilters 
-                onFilterChange={(newFilters) => setFilters(newFilters)} 
+            <SearchFilters
+                onFilterChange={(newFilters) => setFilters(newFilters)}
             />
 
             {loading && photos.length === 0 ? (
@@ -242,7 +245,7 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                             {column.map((item, photoIndex) => {
                                 if ('type' in item && item.type === 'ad') {
                                     return (
-                                        <SponsoredPost 
+                                        <SponsoredPost
                                             key={item.id}
                                             title="Elevate Your Creative Vision"
                                             description="Get exclusive access to high-resolution photos."
@@ -254,11 +257,14 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                                 }
                                 const photo = item as UnsplashPhoto;
                                 return (
-                                    <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer">
-                                        <div 
+                                    <div
+                                        key={photo.id}
+                                        className="relative group rounded-xl break-inside-avoid cursor-pointer overflow-hidden"
+                                        onClick={() => handleImageClick(photo.id)}
+                                    >
+                                        <div
                                             className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
                                             style={{ backgroundColor: photo.color || '#f3f3f3' }}
-                                            onClick={() => handleImageClick(photo.id)}
                                         >
                                             <Image
                                                 src={photo.urls.small}
@@ -272,24 +278,40 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                                         </div>
                                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
                                             <div className='absolute top-4 right-4 flex gap-2 z-10' onClick={(e) => e.stopPropagation()}>
-                                                <Tooltip text="Like">
+                                                <Tooltip text="Like" position='bottom'>
                                                     <LikeButton photoId={photo.id} className='bg-white/90 backdrop-blur-sm shadow-sm' />
                                                 </Tooltip>
-                                                <Tooltip text="Bookmark">
+                                                <Tooltip text="Bookmark" position='bottom'>
                                                     <BookmarkButton photoId={photo.id} className='bg-white/90 backdrop-blur-sm shadow-sm' />
                                                 </Tooltip>
-                                                <Tooltip text="Add to Collection">
+                                                <Tooltip text="Add to Collection" position='bottom'>
                                                     <button
-                                                        onClick={(e) => { e.stopPropagation(); setSelectedPhoto(photo); setIsCollectionModalOpen(true); }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (status !== 'authenticated') {
+                                                                toast.error('Please login to create or manage collections');
+                                                                return;
+                                                            }
+                                                            setSelectedPhoto(photo);
+                                                            setIsCollectionModalOpen(true);
+                                                        }}
                                                         className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
                                                         aria-label="Add photo to collection"
                                                     >
                                                         <Plus size={18} />
                                                     </button>
                                                 </Tooltip>
-                                                <Tooltip text="Share">
+                                                <Tooltip text="Share" position='bottom'>
                                                     <button
-                                                        onClick={(e) => { e.stopPropagation(); setSelectedPhoto({ id: photo.id, url: photo.urls.regular, title: photo.description || photo.alt_description }); setIsShareModalOpen(true); }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (status !== 'authenticated') {
+                                                                toast.error('Please login to share photos');
+                                                                return;
+                                                            }
+                                                            setSelectedPhoto({ id: photo.id, url: photo.urls.regular, title: photo.description || photo.alt_description });
+                                                            setIsShareModalOpen(true);
+                                                        }}
                                                         className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
                                                         aria-label="Share photo"
                                                     >
@@ -313,28 +335,33 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                                 );
                             })}
                         </div>
-                    ))}
-                </div>
+                    ))
+                    }
+                </div >
             )}
 
             <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
                 {loadingMore && <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>}
             </div>
 
-            {photos.length === 0 && !loading && (
-                <div className="text-center py-20">
-                    <p className="text-gray-500 text-lg">No photos found for &quot;{q}&quot;</p>
-                </div>
-            )}
+            {
+                photos.length === 0 && !loading && (
+                    <div className="text-center py-20">
+                        <p className="text-gray-500 text-lg">No photos found for &quot;{q}&quot;</p>
+                    </div>
+                )
+            }
 
-            {selectedPhoto && (
-                <>
-                    <AddToCollectionModal isOpen={isCollectionModalOpen} onClose={() => setIsCollectionModalOpen(false)} photo={selectedPhoto} />
-                    <SharePhoto isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} photo={selectedPhoto} />
-                </>
-            )}
+            {
+                selectedPhoto && (
+                    <>
+                        <AddToCollectionModal isOpen={isCollectionModalOpen} onClose={() => setIsCollectionModalOpen(false)} photo={selectedPhoto} />
+                        <SharePhoto isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} photo={selectedPhoto} />
+                    </>
+                )
+            }
             <ScrollToTop />
-        </div>
+        </div >
     )
 }
 

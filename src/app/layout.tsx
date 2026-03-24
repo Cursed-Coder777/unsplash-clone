@@ -2,15 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import Sidebar from "@/components/myComponents/Sidebar";
-import { Suspense } from "react";
-import Navbar from "@/components/myComponents/Navbar";
-import BottomNav from "@/components/myComponents/BottomNav";
-import Footer from "@/components/myComponents/Footer";
 import { Providers } from "./providers";
-import ToastContainer from "@/components/myComponents/Toast";
 import NextTopLoader from 'nextjs-toploader';
 import Script from 'next/script';
+import LayoutWrapper from "@/components/myComponents/LayoutWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -95,26 +90,9 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <NextTopLoader color="#000000" showSpinner={false} />
-          <div className="flex min-h-screen bg-white">
-            {/* Sidebar */}
-            <div className="hidden lg:block lg:w-16 fixed left-0 top-0 h-full z-50">
-              <Sidebar />
-            </div>
-
-            {/* Main content */}
-            <div className="flex flex-col flex-1 w-full lg:pl-16">
-              <Suspense fallback={<div className="h-16 animate-pulse bg-gray-100"></div>}>
-                <Navbar />
-              </Suspense>
-
-              <main className="flex-1 mt-[110px] md:mt-[120px] pb-20 lg:pb-0">
-                {children}
-              </main>
-            </div>
-
-            <BottomNav />
-            <ToastContainer />
-          </div>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
           <SpeedInsights />
         </body>
       </Providers>

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Plus, X, Lock, Globe, Check, Loader2, FolderPlus } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from '@/components/myComponents/Toast';
+import { useSession } from 'next-auth/react';
 
 interface Collection {
     _id: string;
@@ -25,12 +26,20 @@ interface AddToCollectionModalProps {
 }
 
 export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCollectionModalProps) {
+    const { data: session, status } = useSession();
     const [collections, setCollections] = useState<Collection[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [newTitle, setNewTitle] = useState('');
     const [newIsPrivate, setNewIsPrivate] = useState(false);
     const [processingId, setProcessingId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (isOpen && status === 'unauthenticated') {
+            toast.error('Please login to manage collections');
+            onClose();
+        }
+    }, [isOpen, status, onClose]);
 
     const fetchCollections = async () => {
         try {

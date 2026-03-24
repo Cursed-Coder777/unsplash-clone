@@ -68,10 +68,10 @@ export default async function HomePage(props: { searchParams: Promise<{ q?: stri
 
     return (
         <main id="main-content">
-            <HomeClient 
-                initialPhotos={initialPhotos} 
-                q={q} 
-                aiSearch={isAiEnabled} 
+            <HomeClient
+                initialPhotos={initialPhotos}
+                q={q}
+                aiSearch={isAiEnabled}
             />
         </main>
     );
