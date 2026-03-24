@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import LanguageDropdown from '@/components/myComponents/LanguageDropDown';
+import Tooltip from '@/components/myComponents/Tooltip';
 import UserMenu from './UserMenu';
 import { RiUnsplashFill } from 'react-icons/ri';
 
@@ -31,23 +32,39 @@ const Sidebar = () => {
                     <RiUnsplashFill size={30} className='text-black cursor-pointer transition-colors mb-2' />
                 </Link>
                 <div className="flex flex-col gap-5 items-center">
-                    <Link href="/home/generate">
-                        <Wand2 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    </Link>
-                    <ImageIcon size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    <PenTool size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    <Compass size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    <Tooltip text="AI Generate" position="right">
+                        <Link href="/home/generate">
+                            <Wand2 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                        </Link>
+                    </Tooltip>
+                    <Tooltip text="Photos" position="right">
+                        <ImageIcon size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    </Tooltip>
+                    <Tooltip text="Tools" position="right">
+                        <PenTool size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    </Tooltip>
+                    <Tooltip text="Explore" position="right">
+                        <Compass size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    </Tooltip>
 
-                    <Link href="/collections">
-                        <Folders size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    </Link>
-                    <Download size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    <Link href="/account/bookmarks">
-                        <Bookmark size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    </Link>
-                    <Link href="/admin/ads">
-                        <BarChart3 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    </Link>
+                    <Tooltip text="Collections" position="right">
+                        <Link href="/collections">
+                            <Folders size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                        </Link>
+                    </Tooltip>
+                    <Tooltip text="Downloads" position="right">
+                        <Download size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                    </Tooltip>
+                    <Tooltip text="Bookmarks" position="right">
+                        <Link href="/account/bookmarks">
+                            <Bookmark size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                        </Link>
+                    </Tooltip>
+                    <Tooltip text="Analytics" position="right">
+                        <Link href="/admin/ads">
+                            <BarChart3 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                        </Link>
+                    </Tooltip>
                 </div>
             </div>
 
@@ -57,17 +74,21 @@ const Sidebar = () => {
                 <UserMenu variant="sidebar" />
 
                 {/* Language Dropdown */}
-                <LanguageDropdown
-                    trigger={
-                        <Languages size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
-                    }
-                    position="right"
-                    align="top"
-                    onLanguageChange={handleLanguageChange}
-                />
+                <Tooltip text="Language" position="right">
+                    <LanguageDropdown
+                        trigger={
+                            <Languages size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                        }
+                        position="right"
+                        align="top"
+                        onLanguageChange={handleLanguageChange}
+                    />
+                </Tooltip>
 
                 {/* Menu Icon */}
-                <TextAlignJustify size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                <Tooltip text="Menu" position="right">
+                    <TextAlignJustify size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
+                </Tooltip>
             </div>
         </div>
     );

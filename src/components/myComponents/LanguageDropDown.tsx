@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Check } from 'lucide-react'
+import Tooltip from './Tooltip'
 
 interface Language {
     code: string
@@ -62,37 +63,40 @@ const LanguageDropdown = ({
     }, [position, align])
 
     return (
-        <div className="relative inline-block" ref={dropdownRef}>
-            <div onClick={toggleOpen} className="cursor-pointer">
-                {trigger}
-            </div>
-
-            {isOpen && (
-                <div className={dropdownClasses}>
-                    <div className="px-4 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
-                        <h3 className="text-sm font-medium text-gray-700">Select Your Language</h3>
-                    </div>
-
-                    <div className="p-1 max-h-[400px] overflow-y-auto">
-                        {LANGUAGES.map((language) => (
-                            <button
-                                key={language.code}
-                                onClick={() => handleLanguageSelect(language)}
-                                type="button"
-                                className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors flex items-center justify-between group rounded-md"
-                            >
-                                <span className="text-gray-700">{language.name}</span>
-                                {selectedLanguage.code === language.code ? (
-                                    <Check size={18} className="text-[#767676]" />
-                                ) : (
-                                    <span className="w-5 h-5"></span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+        <Tooltip text='Language' position='right'
+        >
+            <div className="relative inline-block" ref={dropdownRef}>
+                <div onClick={toggleOpen} className="cursor-pointer">
+                    {trigger}
                 </div>
-            )}
-        </div>
+
+                {isOpen && (
+                    <div className={dropdownClasses}>
+                        <div className="px-4 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                            <h3 className="text-sm font-medium text-gray-700">Select Your Language</h3>
+                        </div>
+
+                        <div className="p-1 max-h-[400px] overflow-y-auto">
+                            {LANGUAGES.map((language) => (
+                                <button
+                                    key={language.code}
+                                    onClick={() => handleLanguageSelect(language)}
+                                    type="button"
+                                    className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors flex items-center justify-between group rounded-md"
+                                >
+                                    <span className="text-gray-700">{language.name}</span>
+                                    {selectedLanguage.code === language.code ? (
+                                        <Check size={18} className="text-[#767676]" />
+                                    ) : (
+                                        <span className="w-5 h-5"></span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </Tooltip>
     )
 }
 

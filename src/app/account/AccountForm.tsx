@@ -126,12 +126,13 @@ export default function AccountForm({ user }: { user: UserData }) {
 
     return (
         <div>
+
             <div className="max-w-[1440px] mx-auto px-4 py-8 md:py-12 md:flex font-sans text-[#111]">
                 {/* Sidebar */}
                 <div className="w-full md:w-[280px] pr-8 mb-8 md:mb-0 flex-shrink-0">
                     <h3 className="font-bold text-[18px] mb-5">Account settings</h3>
                     <ul className="space-y-[14px] text-[15px] text-[#767676]">
-                        <li><Link href="/account" className="hover:text-black transition-colors text-black font-semibold">Edit profile</Link></li>
+                        <li><Link href="/account" className="hover:text-black transition-colors text-black font-semibold">Edit Profile</Link></li>
                         <li><Link href="#" className="hover:text-black transition-colors">Email settings</Link></li>
                         <li><Link href="/account/changePassword" title="Current settings" className="hover:text-black transition-colors">Change password</Link></li>
                         <li><Link href="#" className="hover:text-black transition-colors">Applications</Link></li>
@@ -142,7 +143,7 @@ export default function AccountForm({ user }: { user: UserData }) {
                 {/* Main Content */}
                 <div className="flex-1 max-w-[1100px]">
                     <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-[24px] font-bold">Edit profile</h1>
+                        <h1 className="text-[24px] font-bold">Edit Profile <span className="text-[14px] text-[#767676] font-normal capitalize">(if you don't see any changes please refresh the page)</span></h1>
                         <div className="bg-[#ccf0d8] text-[#107c41] px-[10px] py-[4px] rounded-full text-[13px] font-medium flex items-center shadow-sm">
                             <svg className="w-4 h-4 mr-[4px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />

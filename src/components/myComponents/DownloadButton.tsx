@@ -168,6 +168,7 @@ export default function DownloadButton({
           onClick={handleMainDownload}
           disabled={downloading}
           className="px-4 py-2 bg-white text-gray-700 hover:text-black hover:border-black transition-all duration-200 flex items-center gap-2 min-w-[110px] justify-center cursor-pointer"
+          aria-label={downloading ? "Downloading photo" : "Download photo"}
         >
           {downloading ? (
             <>
@@ -187,6 +188,8 @@ export default function DownloadButton({
           onClick={handleDropdownToggle}
           disabled={downloading}
           className="px-2 py-2 bg-white text-gray-700 hover:text-black hover:bg-gray-50 transition-all duration-200 cursor-pointer flex items-center justify-center group"
+          aria-label="Open download size options"
+          aria-expanded={isOpen}
         >
           <ChevronDown
             size={18}

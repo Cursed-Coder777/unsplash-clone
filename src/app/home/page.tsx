@@ -1,453 +1,78 @@
-'use client'
+import { Metadata } from 'next';
+import HomeClient from "./HomeClient";
 
-import { useEffect, useState, useRef, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
-import { Bookmark, Plus, Download, Heart, Scroll } from 'lucide-react'
-import DownloadButton from '@/components/myComponents/DownloadButton'
-import ScrollToTop from '@/components/myComponents/ScrollToTop'
-import BookmarkButton from '@/components/myComponents/BookmarkButton'
-import LikeButton from '@/components/myComponents/LikeButton'
-import SponsoredPost from '@/components/myComponents/SponsoredPost'
-import SearchFilters from '@/components/myComponents/SearchFilters'
-import { PhotoSkeleton } from '@/components/myComponents/Skeleton'
-import AddToCollectionModal from '@/components/myComponents/AddToCollectionModal'
-import SharePhoto from '@/components/myComponents/SharePhoto'
-import { Share2, Wand2, Loader2 } from 'lucide-react'
+export const dynamic = 'force-dynamic';
 
-interface UnsplashPhoto {
-    id: string
-    slug: string
-    alternative_slugs: {
-        en: string
-        es: string
-        ja: string
-        fr: string
-        it: string
-        ko: string
-        de: string
-        pt: string
-        id: string
+export async function generateMetadata(props: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
+    const searchParams = await props.searchParams;
+    const q = searchParams.q || 'nature';
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+    return {
+        title: `${q.charAt(0).toUpperCase() + q.slice(1)} Photos | Unsplash Clone`,
+        description: `Explore high-quality ${q} photos on Unsplash Clone. Download beautiful, free images in high resolution.`,
+        keywords: `${q}, photos, images, free, download, unsplash clone`,
+        openGraph: {
+            title: `${q} Photos | Unsplash Clone`,
+            description: `Browse the best collection of ${q} images.`,
+            url: `${siteUrl}/home?q=${q}`,
+            siteName: 'Unsplash Clone',
+            images: [
+                {
+                    url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200',
+                    width: 1200,
+                    height: 630,
+                },
+            ],
+            locale: 'en_US',
+            type: 'website',
+        },
+        alternates: {
+            canonical: `${siteUrl}/home?q=${q}`,
+        },
+    };
+}
+
+async function getInitialPhotos(query: string, page: string = '1', order_by: string = 'relevant') {
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+    if (!accessKey) {
+        console.error("Missing UNSPLASH_ACCESS_KEY");
+        return [];
     }
-    created_at: string
-    updated_at: string
-    promoted_at: string | null
-    width: number
-    height: number
-    color: string
-    blur_hash: string
-    description: string | null
-    alt_description: string | null
-    breadcrumbs: any[]
-    urls: {
-        raw: string
-        full: string
-        regular: string
-        small: string
-        thumb: string
-        small_s3: string
-    }
-    links: {
-        self: string
-        html: string
-        download: string
-        download_location: string
-    }
-    likes: number
-    liked_by_user: boolean
-    bookmarked: boolean
-    current_user_collections: any[]
-    sponsorship: null | any
-    topic_submissions: {
-        [key: string]: {
-            status: string
-            approved_on: string
-        } | null
-    }
-    asset_type: string
-    user: {
-        id: string
-        updated_at: string
-        username: string
-        name: string
-        first_name: string
-        last_name: string
-        twitter_username: string | null
-        portfolio_url: string | null
-        bio: string | null
-        location: string | null
-        links: {
-            self: string
-            html: string
-            photos: string
-            likes: string
-            portfolio: string
-        }
-        profile_image: {
-            small: string
-            medium: string
-            large: string
-        }
-        instagram_username: string | null
-        total_collections: number
-        total_likes: number
-        total_photos: number
-        total_free_photos: number
-        total_promoted_photos: number
-        total_illustrations: number
-        total_free_illustrations: number
-        total_promoted_illustrations: number
-        accepted_tos: boolean
-        for_hire: boolean
-        social: {
-            instagram_username: string | null
-            portfolio_url: string | null
-            twitter_username: string | null
-            paypal_email: string | null
-        }
+
+    try {
+        const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&page=${page}&per_page=20&order_by=${order_by}`;
+        const res = await fetch(url, {
+            headers: {
+                'Authorization': `Client-ID ${accessKey}`
+            },
+            next: { revalidate: 3600 }
+        });
+
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.results || [];
+    } catch (e) {
+        console.error("Fetch failed", e);
+        return [];
     }
 }
 
-const Home = () => {
-    const searchParams = useSearchParams()
-    const q = searchParams.get('q') || 'nature'
-    const router = useRouter()
-    const [photos, setPhotos] = useState<UnsplashPhoto[]>([])
-    const [loading, setLoading] = useState(true)
-    const [loadingMore, setLoadingMore] = useState(false)
-    const [error, setError] = useState('')
-    const [page, setPage] = useState(1)
-    const [hasMore, setHasMore] = useState(true)
-    const [filters, setFilters] = useState({
-        order_by: 'relevant',
-        color: '',
-        orientation: ''
-    })
+export default async function HomePage(props: { searchParams: Promise<{ q?: string, ai?: string }> }) {
+    const searchParams = await props.searchParams;
+    const q = searchParams.q || 'nature';
+    const isAiEnabled = searchParams.ai === 'true';
 
-    // Modal States
-    const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
-
-    const observerRef = useRef<IntersectionObserver | null>(null)
-    const loadMoreRef = useRef<HTMLDivElement>(null)
-
-    const dedupePhotos = (photosToKeep: UnsplashPhoto[], photosToAdd: UnsplashPhoto[]) => {
-        const existingIds = new Set(photosToKeep.map(photo => photo.id))
-        const filtered = photosToAdd.filter(photo => !existingIds.has(photo.id))
-        return [...photosToKeep, ...filtered]
-    }
-
-    const [isAiExpanding, setIsAiExpanding] = useState(false);
-
-    const fetchPhotos = async (pageNum: number, isNewSearch: boolean = false) => {
-        if (isNewSearch) {
-            setLoading(true)
-            setError('')
-        } else {
-            setLoadingMore(true)
-        }
-
-        try {
-            let searchQuery = q;
-            const isAiEnabled = searchParams.get('ai') === 'true';
-
-            if (isNewSearch && isAiEnabled && q !== 'nature') {
-                setIsAiExpanding(true);
-                try {
-                    const expandRes = await fetch('/api/ai/search/expand', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query: q })
-                    });
-                    if (expandRes.ok) {
-                        const expandData = await expandRes.json();
-                        searchQuery = expandData.expandedQuery;
-                        console.log('AI Expanded Query:', searchQuery);
-                    }
-                } catch (e) {
-                    console.error('AI expansion failed, falling back to original query');
-                } finally {
-                    setIsAiExpanding(false);
-                }
-            }
-
-            let apiUrl = `/api/unsplash?query=${encodeURIComponent(searchQuery)}&page=${pageNum}&order_by=${filters.order_by}`
-            if (filters.color) apiUrl += `&color=${filters.color}`
-            if (filters.orientation) apiUrl += `&orientation=${filters.orientation}`
-
-            const response = await fetch(apiUrl, { cache: 'no-store' })
-
-            if (!response.ok) throw new Error('Failed to fetch photos')
-
-            const data = await response.json()
-
-            const apiPhotos: UnsplashPhoto[] = data.results || []
-            if (isNewSearch) {
-                // Deduplicate based on id for fresh query too
-                const unique = Array.from(new Map(apiPhotos.map(photo => [photo.id, photo])).values())
-                setPhotos(unique)
-            } else {
-                setPhotos(prev => dedupePhotos(prev, apiPhotos))
-            }
-
-            setHasMore(pageNum < data.total_pages)
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Something went wrong')
-        } finally {
-            setLoading(false)
-            setLoadingMore(false)
-        }
-    }
-
-    useEffect(() => {
-        setPage(1)
-        fetchPhotos(1, true)
-    }, [q, filters])
-
-    const loadMore = () => {
-        if (loadingMore || !hasMore || loading) return
-        const nextPage = page + 1
-        setPage(nextPage)
-        fetchPhotos(nextPage, false)
-    }
-
-    useEffect(() => {
-        if (loading) return
-
-        observerRef.current = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && hasMore && !loadingMore) {
-                    loadMore()
-                }
-            },
-            { threshold: 0.1, rootMargin: '400px' }
-        )
-
-        if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current)
-
-        return () => observerRef.current?.disconnect()
-    }, [loading, hasMore, loadingMore, page, q, filters])
-
-    const handleImageClick = (photoId: string) => {
-        // ✅ Correct path for intercepted route
-        router.push(`/home/photo/${photoId}`, { scroll: false });
-    };
-    const columns = useMemo(() => {
-        const cols: (UnsplashPhoto | { type: 'ad'; id: string })[][] = [[], [], []];
-        const colHeights = [0, 0, 0];
-
-        photos.forEach((photo, index) => {
-            const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
-            
-            // Inject an ad indicator every 12 items (approx)
-            if (index > 0 && index % 12 === 0) {
-                cols[minHeightIndex].push({ type: 'ad', id: `ad-${index}` });
-                colHeights[minHeightIndex] += 1.25; // Estimate height for 4/5 aspect ratio
-            }
-            
-            const targetCol = colHeights.indexOf(Math.min(...colHeights));
-            cols[targetCol].push(photo);
-            colHeights[targetCol] += (photo.height / photo.width);
-        });
-        return cols;
-    }, [photos]);
-
-    if (error) {
-        return (
-            <div className="container mx-auto p-10 text-center">
-                <h2 className="text-xl text-red-500 mb-4">{error}</h2>
-                <button onClick={() => fetchPhotos(1, true)} className="bg-black text-white px-6 py-2 rounded-lg">Try Again</button>
-            </div>
-        )
-    }
+    // Prefetch first 20 photos on the server
+    const initialPhotos = await getInitialPhotos(q);
 
     return (
-
-        <>
-
-            <div className="flex flex-col container mx-auto px-4 ">
-                <h1 className="text-2xl font-bold mt-4 mb-2 capitalize flex items-center gap-3">
-                    {q}
-                    {searchParams.get('ai') === 'true' && (
-                        <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <Wand2 size={10} /> AI Enhanced
-                        </span>
-                    )}
-                </h1>
-
-                {isAiExpanding && (
-                    <div className="mb-4 flex items-center gap-3 text-purple-600 animate-pulse">
-                        <Loader2 className="animate-spin" size={16} />
-                        <span className="text-sm font-bold tracking-wide italic">AI is understanding your mood & expanding results...</span>
-                    </div>
-                )}
-
-                <SearchFilters 
-                    onFilterChange={(newFilters: { order_by: string, color: string, orientation: string }) => setFilters(newFilters)} 
-                />
-
-                {loading && photos.length === 0 ? (
-                    <div className="flex flex-col lg:flex-row gap-4">
-                        <div className="flex-1"><PhotoSkeleton /></div>
-                        <div className="hidden sm:block flex-1"><PhotoSkeleton /></div>
-                        <div className="hidden lg:block flex-1"><PhotoSkeleton /></div>
-                    </div>
-                ) : (
-                    <div className='flex flex-col lg:flex-row gap-4'>
-                        {columns.map((column, colIndex) => (
-                            <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                                {column.map((item, photoIndex) => {
-                                    if ('type' in item && item.type === 'ad') {
-                                        return (
-                                            <SponsoredPost 
-                                                key={item.id}
-                                                title="Elevate Your Creative Vision with Premium Assets"
-                                                description="Get exclusive access to high-resolution photos and illustrations. Limited time offer."
-                                                imageUrl="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1000"
-                                                sponsorName="CreativePro"
-                                                targetUrl="https://unsplash.com"
-                                            />
-                                        );
-                                    }
-                                    
-                                    const photo = item as UnsplashPhoto;
-                                    return (
-                                        <div key={photo.id} className="relative group rounded-xl break-inside-avoid cursor-pointer">
-                                            <div 
-                                                className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
-                                                style={{ backgroundColor: photo.color || '#f3f3f3' }}
-                                                onClick={() => handleImageClick(photo.id)}
-                                                role="button"
-                                                aria-label={`View photo by ${photo.user.name}`}
-                                                tabIndex={0}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' || e.key === ' ') {
-                                                        e.preventDefault();
-                                                        handleImageClick(photo.id);
-                                                    }
-                                                }}
-                                            >
-                                                <Image
-                                                    src={photo.urls.small}
-                                                    width={photo.width}
-                                                    height={photo.height}
-                                                    alt={photo.alt_description || "Photo"}
-                                                    className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                    priority={photoIndex < 2 && colIndex < 3}
-                                                />
-                                            </div>
-                                            <div
-                                                onClick={() => handleImageClick(photo.id)}
-                                                className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <div className='absolute top-4 right-4 flex gap-2 z-1'>
-                                                    <div
-                                                        className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                        aria-label="Like photo "
-                                                    >
-                                                        <LikeButton photoId={photo.id} />
-                                                    </div>
-                                                    <div
-                                                        className='bg-white/90 backdrop-blur-sm  rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                        aria-label="Bookmark photo "
-                                                    >
-                                                        <BookmarkButton photoId={photo.id} />
-                                                    </div>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault()
-                                                            e.stopPropagation()
-                                                            setSelectedPhoto(photo)
-                                                            setIsCollectionModalOpen(true)
-                                                        }}
-                                                        className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                        aria-label="Add photo to collection "
-                                                    >
-                                                        <Plus size={18} />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault()
-                                                            e.stopPropagation()
-                                                            setSelectedPhoto({
-                                                                id: photo.id,
-                                                                url: photo.urls.regular,
-                                                                title: photo.description || photo.alt_description
-                                                            })
-                                                            setIsShareModalOpen(true)
-                                                        }}
-                                                        className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                        aria-label="Share photo "
-                                                    >
-                                                        <Share2 size={16} />
-                                                    </button>
-                                                </div>
-                                                <div className='absolute bottom-4 right-4'>
-                                                    <DownloadButton
-                                                        photoId={photo.id}
-                                                        photoUrls={{
-                                                            small: photo.urls.small,
-                                                            regular: photo.urls.regular,
-                                                            full: photo.urls.full,
-                                                            raw: photo.urls.raw
-                                                        }}
-                                                        className='z-3'
-                                                    />
-                                                </div>
-                                                <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                                                    {photo.user.profile_image?.small && (
-                                                        <Image
-                                                            src={photo.user.profile_image.small}
-                                                            alt={photo.user.name}
-                                                            width={32}
-                                                            height={32}
-                                                            className='rounded-full w-8 h-8 object-cover border-2 border-white/50'
-                                                        />
-                                                    )}
-                                                    <p className="text-white text-sm font-semibold drop-shadow-md">
-                                                        {photo.user.name}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
-                    {loadingMore && (
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>
-                    )}
-                </div>
-
-                {photos.length === 0 && !loading && (
-                    <div className="text-center py-20">
-                        <p className="text-gray-500 text-lg">No photos found for &quot;{q}&quot;</p>
-                    </div>
-                )}
-            </div>
-
-            {/* Modals */}
-            {selectedPhoto && (
-                <>
-                    <AddToCollectionModal 
-                        isOpen={isCollectionModalOpen}
-                        onClose={() => setIsCollectionModalOpen(false)}
-                        photo={selectedPhoto}
-                    />
-                    <SharePhoto 
-                        isOpen={isShareModalOpen}
-                        onClose={() => setIsShareModalOpen(false)}
-                        photo={selectedPhoto}
-                    />
-                </>
-            )}
-        </>
-    )
+        <main id="main-content">
+            <HomeClient 
+                initialPhotos={initialPhotos} 
+                q={q} 
+                aiSearch={isAiEnabled} 
+            />
+        </main>
+    );
 }
-
-export default Home

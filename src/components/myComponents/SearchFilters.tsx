@@ -88,6 +88,7 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
             <button
               key={sort.value}
               onClick={() => handleUpdate('sort', sort.value)}
+              aria-label={`Sort by ${sort.name}`}
               className={`px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all ${selectedSort === sort.value
                 ? 'bg-white text-black shadow-sm'
                 : 'text-gray-500 hover:text-black'
@@ -109,6 +110,7 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
             <button
               key={o.value}
               onClick={() => handleUpdate('orientation', o.value)}
+              aria-label={`Orientation ${o.name}`}
               className={`px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all ${selectedOrientation === o.value
                 ? 'bg-white text-black shadow-sm'
                 : 'text-gray-500 hover:text-black'
@@ -131,6 +133,7 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
               key={c.value}
               onClick={() => handleUpdate('color', c.value)}
               title={c.name}
+              aria-label={`Filter by color ${c.name}`}
               className={`w-5 h-5 rounded-full border border-gray-200 transition-all flex items-center justify-center ${selectedColor === c.value ? 'scale-125 ring-2 ring-black ring-offset-2' : 'hover:scale-110'
                 }`}
               style={{ backgroundColor: c.hex }}

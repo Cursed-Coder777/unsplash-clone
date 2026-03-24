@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import UserMenu from "./UserMenu";
 import { useSession } from "next-auth/react";
+import Tooltip from "./Tooltip";
 import Image from "next/image";
 
 
@@ -78,9 +79,9 @@ const Navbar = () => {
                                 placeholder="Search photos"
                                 className="w-full h-full pl-2 outline-none border-none bg-transparent text-sm lg:text-base text-gray-800 [&::-webkit-search-cancel-button]:hidden"
                             />
-                            
+
                             {/* AI Mode Toggle */}
-                            <button 
+                            <button
                                 type="button"
                                 onClick={() => setIsAiEnabled(!isAiEnabled)}
                                 className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all ${isAiEnabled ? 'bg-black text-white shadow-lg shadow-black/20' : 'text-gray-400 hover:text-black hover:bg-white'}`}
@@ -97,20 +98,28 @@ const Navbar = () => {
                     </form>
 
                     <div className="hidden lg:flex items-center gap-6">
-                        <Link href="/home/generate" className="text-sm font-medium text-gray-600 hover:text-black transition-colors flex items-center gap-1">
-                            <Wand2 size={16} /> Generate Image
-                        </Link>
-                        <Link href="/plus" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
-                            Get Unsplash+
-                        </Link>
-                        <button className="text-sm font-medium text-gray-500 border border-gray-300 px-3 py-1.5 rounded-md hover:border-black hover:text-black transition-all">
-                            Submit an image
-                        </button>
+                        <Tooltip text="Generate images" position="bottom">
+                            <Link href="/home/generate" className="text-sm font-medium text-gray-600 hover:text-black transition-colors flex items-center gap-1">
+                                <Wand2 size={16} /> Generate Image
+                            </Link>
+                        </Tooltip>
+                        <Tooltip text="Get Unsplash+" position="bottom">
+                            <Link href="/plus" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                                Get Unsplash+
+                            </Link>
+                        </Tooltip>
+                        <Tooltip text="Submit an image" position="bottom">
+                            <button className="text-sm font-medium text-gray-500 border border-gray-300 px-3 py-1.5 rounded-md hover:border-black hover:text-black transition-all">
+                                Submit an image
+                            </button>
+                        </Tooltip>
 
                         {/* User Profile / Login */}
+
                         <div className="flex items-center gap-4 ml-2 border-l border-gray-200 pl-6 h-8">
-                            <UserMenu />
+                            <UserMenu variant="navbar" />
                         </div>
+
                     </div>
 
                     {/* Mobile Menu Icon */}

@@ -10,6 +10,7 @@ import Footer from "@/components/myComponents/Footer";
 import { Providers } from "./providers";
 import ToastContainer from "@/components/myComponents/Toast";
 import NextTopLoader from 'nextjs-toploader';
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -78,12 +79,16 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
-        {/* Google AdSense */}
-        <script
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://plus.unsplash.com" />
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <Script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-0000000000000000'}`}
           crossOrigin="anonymous"
-        ></script>
+          strategy="afterInteractive"
+        />
       </head>
       <Providers>
         <body
@@ -91,7 +96,7 @@ export default function RootLayout({
         >
           <NextTopLoader color="#000000" showSpinner={false} />
           <div className="flex min-h-screen bg-white">
-            {/* Sidebar - Hidden on small screens (handled in Sidebar component too) */}
+            {/* Sidebar */}
             <div className="hidden lg:block lg:w-16 fixed left-0 top-0 h-full z-50">
               <Sidebar />
             </div>
@@ -105,29 +110,10 @@ export default function RootLayout({
               <main className="flex-1 mt-[110px] md:mt-[120px] pb-20 lg:pb-0">
                 {children}
               </main>
-
             </div>
 
-            {/* Mobile Bottom Navigation */}
             <BottomNav />
-
             <ToastContainer />
-
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  if ('serviceWorker' in navigator) {
-                    window.addEventListener('load', function() {
-                      navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                      }, function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                      });
-                    });
-                  }
-                `,
-              }}
-            />
           </div>
           <SpeedInsights />
         </body>

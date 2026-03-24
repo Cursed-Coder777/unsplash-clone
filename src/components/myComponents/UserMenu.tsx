@@ -5,6 +5,7 @@ import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Settings, LogOut, UserCircle } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import Tooltip from './Tooltip';
 
 interface UserData {
     id: string;
@@ -112,28 +113,33 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
     // Sidebar variant
     if (variant === 'sidebar') {
         const trigger = user || session?.user ? (
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
-                {displayAvatar ? (
-                    <img
-                        src={displayAvatar}
-                        alt="User"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                        }}
-                    />
-                ) : null}
-                {!displayAvatar && (
-                    <span className="text-gray-600 text-sm font-bold uppercase">
-                        {displayInitials}
-                    </span>
-                )}
-            </div>
+            <Tooltip text={displayName} position="right">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
+                    {displayAvatar ? (
+                        <img
+                            src={displayAvatar}
+                            alt="User"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                        />
+                    ) : null}
+                    {!displayAvatar && (
+                        <span className="text-gray-600 text-sm font-bold uppercase">
+                            {displayInitials}
+                        </span>
+                    )}
+                </div>
+            </Tooltip>
+
         ) : (
-            <Link href="/login" className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:text-black hover:bg-gray-100 transition">
-                <UserCircle size={28} />
-            </Link>
+            <Tooltip text="Login" position="right">
+                <Link href="/login" className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:text-black hover:bg-gray-100 transition">
+                    <UserCircle size={28} />
+                </Link>
+            </Tooltip>
         );
 
         if (!user && !session?.user) return trigger;
@@ -182,7 +188,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                                 className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                                 onClick={() => setIsOpen(false)}
                             >
-                                <User size={16} className="text-gray-400" />
+                                <Tooltip text="View profile" position="right">
+                                    <User size={16} className="text-gray-400" />
+                                </Tooltip>
                                 <span>View profile</span>
                             </Link>
                             <Link
@@ -190,7 +198,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                                 className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                                 onClick={() => setIsOpen(false)}
                             >
-                                <Settings size={16} className="text-gray-400" />
+                                <Tooltip text="Account settings" position="right">
+                                    <Settings size={16} className="text-gray-400" />
+                                </Tooltip>
                                 <span>Account settings</span>
                             </Link>
                         </div>
@@ -200,7 +210,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                                 onClick={handleLogout}
                                 className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium"
                             >
-                                <LogOut size={16} />
+                                <Tooltip text="Log out" position="right">
+                                    <LogOut size={16} />
+                                </Tooltip>
                                 <span>Sign out</span>
                             </button>
                         </div>
@@ -271,29 +283,31 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
 
     return (
         <div className="relative" ref={menuRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 hover:bg-gray-100 p-1 rounded-full transition-all"
-            >
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 border border-gray-100 flex items-center justify-center">
-                    {displayAvatar ? (
-                        <img
-                            src={displayAvatar}
-                            alt="User"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                            }}
-                        />
-                    ) : null}
-                    {!displayAvatar && (
-                        <span className="text-gray-600 text-xs font-bold uppercase">
-                            {displayInitials}
-                        </span>
-                    )}
-                </div>
-            </button>
+            <Tooltip text='User' position='bottom'>
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex items-center gap-2 hover:bg-gray-100 p-1 rounded-full transition-all"
+                >
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 border border-gray-100 flex items-center justify-center">
+                        {displayAvatar ? (
+                            <img
+                                src={displayAvatar}
+                                alt="User"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                            />
+                        ) : null}
+                        {!displayAvatar && (
+                            <span className="text-gray-600 text-xs font-bold uppercase">
+                                {displayInitials}
+                            </span>
+                        )}
+                    </div>
+                </button>
+            </Tooltip>
 
             {isOpen && (
                 <div className={`absolute right-0 ${variant === 'bottom' ? 'bottom-full mb-3' : 'mt-3'} w-64 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50 animate-in fade-in ${variant === 'bottom' ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'} duration-200`}>
