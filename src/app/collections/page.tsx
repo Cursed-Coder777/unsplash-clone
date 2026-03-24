@@ -118,7 +118,7 @@ export default function CollectionsPage() {
                     ))}
                 </div>
             )}
-
+            {/* Some issue here */}
             {isModalOpen && (
                 <AddToCollectionModal
                     isOpen={isModalOpen}
