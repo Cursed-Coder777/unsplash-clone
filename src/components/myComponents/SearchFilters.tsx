@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  ChevronDown, 
-  RotateCcw, 
-  Layout, 
-  AlignCenter, 
+import {
+  ChevronDown,
+  RotateCcw,
+  Layout,
+  AlignCenter,
   Palette,
   Check
 } from 'lucide-react';
@@ -79,7 +79,7 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-4 py-6 border-b border-gray-100 mb-8 sticky top-0 bg-white z-40">
+    <div className="flex flex-wrap items-center gap-4 py-6 border-b border-gray-100 mb-8 sticky top-[108px] lg:top-[110px] bg-white z-20">
       {/* Sort Filter */}
       <div className="flex items-center gap-2">
         <label className="text-[10px] uppercase font-black text-gray-400 tracking-widest">Sort</label>
@@ -88,11 +88,10 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
             <button
               key={sort.value}
               onClick={() => handleUpdate('sort', sort.value)}
-              className={`px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all ${
-                selectedSort === sort.value 
-                ? 'bg-white text-black shadow-sm' 
+              className={`px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all ${selectedSort === sort.value
+                ? 'bg-white text-black shadow-sm'
                 : 'text-gray-500 hover:text-black'
-              }`}
+                }`}
             >
               {sort.name}
             </button>
@@ -110,11 +109,10 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
             <button
               key={o.value}
               onClick={() => handleUpdate('orientation', o.value)}
-              className={`px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all ${
-                selectedOrientation === o.value 
-                ? 'bg-white text-black shadow-sm' 
+              className={`px-3 py-1.5 rounded-md text-[13px] font-semibold transition-all ${selectedOrientation === o.value
+                ? 'bg-white text-black shadow-sm'
                 : 'text-gray-500 hover:text-black'
-              }`}
+                }`}
             >
               {o.name}
             </button>
@@ -133,9 +131,8 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
               key={c.value}
               onClick={() => handleUpdate('color', c.value)}
               title={c.name}
-              className={`w-5 h-5 rounded-full border border-gray-200 transition-all flex items-center justify-center ${
-                selectedColor === c.value ? 'scale-125 ring-2 ring-black ring-offset-2' : 'hover:scale-110'
-              }`}
+              className={`w-5 h-5 rounded-full border border-gray-200 transition-all flex items-center justify-center ${selectedColor === c.value ? 'scale-125 ring-2 ring-black ring-offset-2' : 'hover:scale-110'
+                }`}
               style={{ backgroundColor: c.hex }}
             >
               {selectedColor === c.value && (
@@ -148,7 +145,7 @@ export default function SearchFilters({ onFilterChange }: SearchFiltersProps) {
 
       {/* Clear Button */}
       {(selectedOrientation || selectedColor || selectedSort !== 'relevant') && (
-        <button 
+        <button
           onClick={clearFilters}
           className="ml-auto flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors text-xs font-bold uppercase tracking-wider"
         >
