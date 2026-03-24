@@ -52,8 +52,8 @@ export default function CollectionsPage() {
                     <h1 className="text-4xl font-black mb-2">My Collections</h1>
                     <p className="text-gray-500 font-medium">Organize and save your favorite photos</p>
                 </div>
-                
-                <button 
+
+                <button
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-black/10"
                 >
@@ -69,7 +69,7 @@ export default function CollectionsPage() {
                     </div>
                     <h2 className="text-2xl font-bold mb-2">No collections yet</h2>
                     <p className="text-gray-500 mb-8 max-w-sm">Create your first collection to start organizing photos you love.</p>
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
                         className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all"
                     >
@@ -79,14 +79,14 @@ export default function CollectionsPage() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {collections.map((collection) => (
-                        <div 
+                        <div
                             key={collection._id}
                             onClick={() => router.push(`/collections/${collection._id}`)}
                             className="group cursor-pointer"
                         >
                             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-100 mb-4 shadow-sm group-hover:shadow-md transition-all">
                                 {collection.coverPhoto ? (
-                                    <Image 
+                                    <Image
                                         src={collection.coverPhoto}
                                         alt={collection.title}
                                         fill
@@ -98,13 +98,13 @@ export default function CollectionsPage() {
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                                
+
                                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
                                     {collection.isPrivate ? <Lock size={10} /> : <Globe size={10} />}
                                     {collection.isPrivate ? 'Private' : 'Public'}
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="font-bold text-lg group-hover:text-gray-600 transition-colors">{collection.title}</h3>
@@ -120,7 +120,8 @@ export default function CollectionsPage() {
             )}
 
             {isModalOpen && (
-                <AddToCollectionModal 
+                <AddToCollectionModal
+                    isOpen={isModalOpen}
                     photo={null} // null means we are just creating/managing, not adding a specific photo
                     onClose={() => {
                         setIsModalOpen(false);
