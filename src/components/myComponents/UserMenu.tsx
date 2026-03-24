@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Settings, LogOut, UserCircle } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
@@ -86,6 +86,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
             // If using NextAuth, sign out with NextAuth
             if (session) {
                 await signOut({ redirect: false });
+                redirect('/login')
             }
             // Also call our logout API
             await fetch('/api/auth/logout', { method: 'POST' });
@@ -248,7 +249,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                         <p className="text-xs text-gray-500 truncate">View Profile</p>
                     </div>
                 </Link>
-                
+
                 <button
                     onClick={handleLogout}
                     className="w-full py-2.5 text-center text-sm text-red-500 font-medium hover:bg-red-50 rounded-lg transition-colors border border-red-50"
