@@ -10,6 +10,10 @@ import BookmarkButton from '@/components/myComponents/BookmarkButton'
 import LikeButton from '@/components/myComponents/LikeButton'
 import SponsoredPost from '@/components/myComponents/SponsoredPost'
 import SearchFilters from '@/components/myComponents/SearchFilters'
+import { PhotoSkeleton } from '@/components/myComponents/Skeleton'
+import AddToCollectionModal from '@/components/myComponents/AddToCollectionModal'
+import SharePhoto from '@/components/myComponents/SharePhoto'
+import { Share2 } from 'lucide-react'
 
 interface UnsplashPhoto {
     id: string
@@ -119,6 +123,11 @@ const Home = () => {
         color: '',
         orientation: ''
     })
+
+    // Modal States
+    const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
 
     const observerRef = useRef<IntersectionObserver | null>(null)
     const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -238,14 +247,14 @@ const Home = () => {
                 </h1>
 
                 <SearchFilters 
-                    onFilterChange={(newFilters) => setFilters(newFilters)} 
+                    onFilterChange={(newFilters: { order_by: string, color: string, orientation: string }) => setFilters(newFilters)} 
                 />
 
                 {loading && photos.length === 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="bg-gray-100 aspect-[3/4] animate-pulse"></div>
-                        ))}
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <div className="flex-1"><PhotoSkeleton /></div>
+                        <div className="hidden sm:block flex-1"><PhotoSkeleton /></div>
+                        <div className="hidden lg:block flex-1"><PhotoSkeleton /></div>
                     </div>
                 ) : (
                     <div className='flex flex-col lg:flex-row gap-4'>
@@ -312,11 +321,29 @@ const Home = () => {
                                                         onClick={(e) => {
                                                             e.preventDefault()
                                                             e.stopPropagation()
+                                                            setSelectedPhoto(photo)
+                                                            setIsCollectionModalOpen(true)
                                                         }}
                                                         className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
                                                         aria-label="Add photo to collection "
                                                     >
                                                         <Plus size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            setSelectedPhoto({
+                                                                id: photo.id,
+                                                                url: photo.urls.regular,
+                                                                title: photo.description || photo.alt_description
+                                                            })
+                                                            setIsShareModalOpen(true)
+                                                        }}
+                                                        className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                        aria-label="Share photo "
+                                                    >
+                                                        <Share2 size={16} />
                                                     </button>
                                                 </div>
                                                 <div className='absolute bottom-4 right-4'>
@@ -366,6 +393,22 @@ const Home = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modals */}
+            {selectedPhoto && (
+                <>
+                    <AddToCollectionModal 
+                        isOpen={isCollectionModalOpen}
+                        onClose={() => setIsCollectionModalOpen(false)}
+                        photo={selectedPhoto}
+                    />
+                    <SharePhoto 
+                        isOpen={isShareModalOpen}
+                        onClose={() => setIsShareModalOpen(false)}
+                        photo={selectedPhoto}
+                    />
+                </>
+            )}
         </>
     )
 }

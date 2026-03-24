@@ -9,6 +9,8 @@ import BottomNav from "@/components/myComponents/BottomNav";
 import Footer from "@/components/myComponents/Footer";
 import { Providers } from "./providers";
 import ToastContainer from "@/components/myComponents/Toast";
+import NextTopLoader from 'nextjs-toploader';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -87,6 +89,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+          <NextTopLoader color="#000000" showSpinner={false} />
           <div className="flex min-h-screen bg-white">
             {/* Sidebar - Hidden on small screens (handled in Sidebar component too) */}
             <div className="hidden lg:block lg:w-16 fixed left-0 top-0 h-full z-50">
@@ -102,14 +105,14 @@ export default function RootLayout({
               <main className="flex-1 mt-[110px] md:mt-[120px] pb-20 lg:pb-0">
                 {children}
               </main>
-              <Footer />
+
             </div>
 
             {/* Mobile Bottom Navigation */}
             <BottomNav />
 
             <ToastContainer />
-            
+
             <script
               dangerouslySetInnerHTML={{
                 __html: `
