@@ -34,10 +34,16 @@ const Navbar = () => {
         }
     }, [isMenuOpen])
 
+    const [isAiEnabled, setIsAiEnabled] = useState(searchParams.get('ai') === 'true')
+
     const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (searchTerm.trim()) {
-            router.push(`/home?q=${encodeURIComponent(searchTerm.trim())}`)
+            let url = `/home?q=${encodeURIComponent(searchTerm.trim())}`
+            if (isAiEnabled) {
+                url += `&ai=true`
+            }
+            router.push(url)
         }
     }
 
@@ -72,7 +78,19 @@ const Navbar = () => {
                                 placeholder="Search photos"
                                 className="w-full h-full pl-2 outline-none border-none bg-transparent text-sm lg:text-base text-gray-800 [&::-webkit-search-cancel-button]:hidden"
                             />
-                            <button type="button" className="hidden sm:block">
+                            
+                            {/* AI Mode Toggle */}
+                            <button 
+                                type="button"
+                                onClick={() => setIsAiEnabled(!isAiEnabled)}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all ${isAiEnabled ? 'bg-black text-white shadow-lg shadow-black/20' : 'text-gray-400 hover:text-black hover:bg-white'}`}
+                                title={isAiEnabled ? 'AI Enhanced Search ON' : 'Turn on AI Enhanced Search'}
+                            >
+                                <Wand2 size={16} className={isAiEnabled ? 'animate-pulse' : ''} />
+                                <span className={`text-[10px] font-black uppercase tracking-widest hidden md:block ${isAiEnabled ? 'block' : 'opacity-50'}`}>AI</span>
+                            </button>
+
+                            <button type="button" className="hidden sm:block ml-2 border-l border-gray-200 pl-2">
                                 <Focus size={18} className="text-gray-500 hover:text-black" />
                             </button>
                         </div>

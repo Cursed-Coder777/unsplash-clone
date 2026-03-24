@@ -23,7 +23,20 @@ const nextConfig: NextConfig = {
         hostname: 'res.cloudinary.com',
       },
     ]
-  }
+  },
+  turbopack: {},
 };
 
-export default nextConfig;
+const withPWA = require('@ducanh2912/next-pwa').default({
+  dest: 'public',
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  swMinify: true,
+  disable: process.env.NODE_ENV === 'development',
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+});
+
+export default withPWA(nextConfig);

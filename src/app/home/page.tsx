@@ -13,7 +13,7 @@ import SearchFilters from '@/components/myComponents/SearchFilters'
 import { PhotoSkeleton } from '@/components/myComponents/Skeleton'
 import AddToCollectionModal from '@/components/myComponents/AddToCollectionModal'
 import SharePhoto from '@/components/myComponents/SharePhoto'
-import { Share2 } from 'lucide-react'
+import { Share2, Wand2, Loader2 } from 'lucide-react'
 
 interface UnsplashPhoto {
     id: string
@@ -138,6 +138,8 @@ const Home = () => {
         return [...photosToKeep, ...filtered]
     }
 
+    const [isAiExpanding, setIsAiExpanding] = useState(false);
+
     const fetchPhotos = async (pageNum: number, isNewSearch: boolean = false) => {
         if (isNewSearch) {
             setLoading(true)
@@ -147,7 +149,30 @@ const Home = () => {
         }
 
         try {
-            let apiUrl = `/api/unsplash?query=${encodeURIComponent(q)}&page=${pageNum}&order_by=${filters.order_by}`
+            let searchQuery = q;
+            const isAiEnabled = searchParams.get('ai') === 'true';
+
+            if (isNewSearch && isAiEnabled && q !== 'nature') {
+                setIsAiExpanding(true);
+                try {
+                    const expandRes = await fetch('/api/ai/search/expand', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: q })
+                    });
+                    if (expandRes.ok) {
+                        const expandData = await expandRes.json();
+                        searchQuery = expandData.expandedQuery;
+                        console.log('AI Expanded Query:', searchQuery);
+                    }
+                } catch (e) {
+                    console.error('AI expansion failed, falling back to original query');
+                } finally {
+                    setIsAiExpanding(false);
+                }
+            }
+
+            let apiUrl = `/api/unsplash?query=${encodeURIComponent(searchQuery)}&page=${pageNum}&order_by=${filters.order_by}`
             if (filters.color) apiUrl += `&color=${filters.color}`
             if (filters.orientation) apiUrl += `&orientation=${filters.orientation}`
 
@@ -242,9 +267,21 @@ const Home = () => {
         <>
 
             <div className="flex flex-col container mx-auto px-4 ">
-                <h1 className="text-2xl font-bold mt-4 mb-2 capitalize">
+                <h1 className="text-2xl font-bold mt-4 mb-2 capitalize flex items-center gap-3">
                     {q}
+                    {searchParams.get('ai') === 'true' && (
+                        <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Wand2 size={10} /> AI Enhanced
+                        </span>
+                    )}
                 </h1>
+
+                {isAiExpanding && (
+                    <div className="mb-4 flex items-center gap-3 text-purple-600 animate-pulse">
+                        <Loader2 className="animate-spin" size={16} />
+                        <span className="text-sm font-bold tracking-wide italic">AI is understanding your mood & expanding results...</span>
+                    </div>
+                )}
 
                 <SearchFilters 
                     onFilterChange={(newFilters: { order_by: string, color: string, orientation: string }) => setFilters(newFilters)} 

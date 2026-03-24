@@ -58,8 +58,8 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
 
         try {
             if (!photo) return;
-            
-            const body = inCollection 
+
+            const body = inCollection
                 ? { photoToRemove: photo.id }
                 : { photoToAdd: photo };
 
@@ -91,9 +91,9 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
             const res = await fetch('/api/collections', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    title: newTitle, 
-                    isPrivate: newIsPrivate 
+                body: JSON.stringify({
+                    title: newTitle,
+                    isPrivate: newIsPrivate
                 })
             });
 
@@ -121,7 +121,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div 
+            <div
                 className="bg-white w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] sm:max-h-[600px] animate-in slide-in-from-bottom-4 duration-300"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -129,7 +129,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                 <div className="hidden md:block w-2/5 relative bg-gray-50 border-r border-gray-100 h-full min-h-[400px]">
                     {photo ? (
                         <>
-                            <Image 
+                            <Image
                                 src={photo.urls.regular || photo.urls.small}
                                 alt="Photo to add"
                                 layout="fill"
@@ -159,7 +159,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                         <h3 className="text-xl font-bold text-gray-900">
                             {photo ? 'Add to collection' : 'Collections'}
                         </h3>
-                        <button 
+                        <button
                             onClick={onClose}
                             className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-black"
                         >
@@ -173,7 +173,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                             <form onSubmit={handleCreateCollection} className="space-y-6 animate-in fade-in slide-in-from-top-2">
                                 <div>
                                     <label className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 block">Name</label>
-                                    <input 
+                                    <input
                                         type="text"
                                         placeholder="e.g. Dream Destinations"
                                         value={newTitle}
@@ -184,7 +184,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                 </div>
                                 <div>
                                     <label className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 block">Description (Optional)</label>
-                                    <textarea 
+                                    <textarea
                                         placeholder="Add a few words about this collection..."
                                         className="w-full px-4 py-3 bg-gray-50 border-0 focus:ring-2 focus:ring-black rounded-xl transition-all h-24 resize-none"
                                     />
@@ -195,11 +195,12 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                             {newIsPrivate ? <Lock size={18} /> : <Globe size={18} />}
                                         </div>
                                         <div>
+                                            <p className="text-sm text-red-500 my-1">You can't change it after Creation</p>
                                             <p className="font-bold text-sm">{newIsPrivate ? 'Private' : 'Public'}</p>
                                             <p className="text-xs text-gray-500">{newIsPrivate ? 'Only you can see this' : 'Everyone can see this'}</p>
                                         </div>
                                     </div>
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => setNewIsPrivate(!newIsPrivate)}
                                         className={`w-12 h-6 rounded-full transition-colors relative ${newIsPrivate ? 'bg-black' : 'bg-gray-200'}`}
@@ -208,14 +209,14 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                     </button>
                                 </div>
                                 <div className="flex gap-4 pt-4">
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => setIsCreating(false)}
                                         className="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-black transition-colors"
                                     >
                                         Cancel
                                     </button>
-                                    <button 
+                                    <button
                                         type="submit"
                                         disabled={loading || !newTitle.trim()}
                                         className="flex-1 py-3 bg-black text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-all disabled:opacity-50"
@@ -226,7 +227,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                             </form>
                         ) : (
                             <div className="space-y-4">
-                                <button 
+                                <button
                                     onClick={() => setIsCreating(true)}
                                     className="w-full p-4 border-2 border-dashed border-gray-100 rounded-2xl flex items-center justify-center gap-3 text-gray-500 hover:border-black hover:text-black transition-all group"
                                 >
@@ -259,9 +260,12 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                                                 </div>
                                                             )}
                                                         </div>
+
                                                         <div className="text-left">
+
                                                             <p className="font-bold text-gray-900 group-hover:text-black transition-colors">{coll.title}</p>
                                                             <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+
                                                                 {coll.isPrivate ? <Lock size={10} /> : <Globe size={10} />}
                                                                 {coll.photos.length} photos
                                                             </p>
