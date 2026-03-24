@@ -21,12 +21,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
     default: "Unsplash Clone | High Quality Wallpapers & Photos",
-    template: "%s | Unsplash Clone"
+    template: "%s"
   },
   description: "A beautiful Unsplash clone built with Next.js, featuring a high-performance masonry grid and seamless photo discovery.",
   keywords: ["photography", "wallpapers", "free photos", "unsplash clone", "nextjs", "high quality images"],
   authors: [{ name: "Cursed Coder" }],
   creator: "Cursed Coder",
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: "Unsplash Clone | High Quality Wallpapers & Photos",
     description: "A beautiful Unsplash clone built with Next.js",
@@ -72,6 +79,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
         <link rel="preconnect" href="https://images.unsplash.com" />

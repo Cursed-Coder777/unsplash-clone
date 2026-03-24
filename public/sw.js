@@ -1,4 +1,4 @@
-const CACHE_NAME = 'unsplash-clone-v1';
+const CACHE_NAME = 'unsplash-clone-v2';
 const OFFLINE_URL = '/offline';
 
 const ASSETS_TO_CACHE = [
@@ -6,8 +6,7 @@ const ASSETS_TO_CACHE = [
   '/home',
   '/offline',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/icon.svg',
 ];
 
 self.addEventListener('install', (event) => {
