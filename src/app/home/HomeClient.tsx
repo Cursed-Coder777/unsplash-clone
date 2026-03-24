@@ -266,14 +266,25 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                                             className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
                                             style={{ backgroundColor: photo.color || '#f3f3f3' }}
                                         >
+                                            {/* Blur placeholder using thumb */}
+                                            <img
+                                                src={photo.urls.thumb}
+                                                aria-hidden="true"
+                                                className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl"
+                                            />
                                             <Image
                                                 src={photo.urls.small}
                                                 width={photo.width}
                                                 height={photo.height}
                                                 alt={photo.alt_description || `High resolution photo by ${photo.user.name}`}
-                                                className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                                                className="relative w-full h-auto transition-all duration-700 group-hover:scale-105"
                                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                                 priority={photoIndex < 4 && colIndex < 3}
+                                                onLoad={(e) => {
+                                                    const img = e.currentTarget;
+                                                    const blur = img.previousElementSibling as HTMLElement;
+                                                    if (blur) blur.style.opacity = '0';
+                                                }}
                                             />
                                         </div>
                                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
