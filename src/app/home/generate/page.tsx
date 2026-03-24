@@ -5,14 +5,23 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Wand2, AlertCircle, Download } from "lucide-react";
 import Image from "next/image";
 import ScrollToTop from "@/components/myComponents/ScrollToTop";
+import { toast } from "@/components/myComponents/Toast";
+import { useSession } from "next-auth/react";
 
 export default function AIImageGenerator() {
+    const { data: session, status } = useSession();
+
     const [prompt, setPrompt] = useState("");
     const [image, setImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+
     const handleGenerate = async () => {
+        if (status !== 'authenticated') {
+            toast.error('Please login to generate images');
+            return;
+        }
         if (!prompt) return;
         setLoading(true);
         setError(null);
@@ -39,10 +48,10 @@ export default function AIImageGenerator() {
             }
 
             const data = await res.json();
-            if (data.image) {
-                setImage(data.image);
+            if (data.imageUrl) {
+                setImage(data.imageUrl);
             } else {
-                throw new Error("No image data in response");
+                throw new Error(data.error || "No image URL in response");
             }
         } catch (err: any) {
             console.error("Frontend Error:", err);
@@ -128,9 +137,9 @@ export default function AIImageGenerator() {
                                 />
                                 {/* Overlay hover effect */}
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                    <Button 
-                                        variant="secondary" 
-                                        className="rounded-full shadow-lg" 
+                                    <Button
+                                        variant="secondary"
+                                        className="rounded-full shadow-lg"
                                         onClick={() => {
                                             const a = document.createElement('a');
                                             a.href = image;

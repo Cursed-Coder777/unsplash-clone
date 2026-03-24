@@ -8,44 +8,33 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
         }
 
-        const hfToken = process.env.HUGGINGFACE_API_KEY;
+        /*
+        // HuggingFace InferenceClient (commented out - requires API key)
+        const hfToken = process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN;
         if (!hfToken) {
-            return NextResponse.json({ error: "Hugging Face API Key is missing! .env file mein 'HUGGINGFACE_API_KEY=YOUR_TOKEN' add karein." }, { status: 500 });
+            return NextResponse.json({ error: "HF API Key missing!" }, { status: 500 });
         }
-
-        // Use standard high-quality model
-        const modelUrl = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0";
-
-        const response = await fetch(modelUrl, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${hfToken}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ inputs: prompt }),
+        const client = new InferenceClient(hfToken);
+        const imageBlob = await client.textToImage({
+            provider: "wavespeed",
+            model: "black-forest-labs/FLUX.1-dev",
+            inputs: prompt,
+            parameters: { num_inference_steps: 5 },
         });
+        const arrayBuffer = await (imageBlob as unknown as Blob).arrayBuffer();
+        */
 
-        if (!response.ok) {
-            const errResult = await response.json().catch(() => ({}));
+        // Pollinations.ai - 100% FREE, no API key needed, uses FLUX.1 model
+        const seed = Math.floor(Math.random() * 1000000);
+        const encodedPrompt = encodeURIComponent(prompt);
 
-            // HuggingFace models have a 3-5 minute warm-up time if they are unloaded.
-            // If we hit a 503 "Model is loading", we should tell the user.
-            if (response.status === 503 && errResult.error?.includes("loading")) {
-                const waitTime = errResult.estimated_time || 20;
-                throw new Error(`AI Model is currently waking up... Please try again in ${Math.ceil(waitTime)} seconds.`);
-            }
+        // Return the URL directly - let the browser load it (avoids server-side fetch issues)
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1024&height=1024&model=flux&nologo=true`;
 
-            throw new Error(`HuggingFace Error: ${errResult.error || response.statusText}`);
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        const base64Data = buffer.toString('base64');
-
-        return NextResponse.json({ image: `data:image/jpeg;base64,${base64Data}` });
+        return NextResponse.json({ imageUrl });
 
     } catch (error: any) {
-        console.error("AI Image Generation Error:", error.message);
+        console.error("[Generate] Error:", error.message);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

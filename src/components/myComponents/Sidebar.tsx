@@ -32,11 +32,11 @@ const Sidebar = () => {
                     <RiUnsplashFill size={30} className='text-black cursor-pointer transition-colors mb-2' />
                 </Link>
                 <div className="flex flex-col gap-5 items-center">
-                    <Tooltip text="AI Generate" position="right">
+                    {/* <Tooltip text="AI Generate" position="right">
                         <Link href="/home/generate">
                             <Wand2 size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                         </Link>
-                    </Tooltip>
+                    </Tooltip> */}
                     <Tooltip text="Photos" position="right">
                         <ImageIcon size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                     </Tooltip>
