@@ -6,6 +6,7 @@ import Sidebar from "@/components/myComponents/Sidebar";
 import { Suspense } from "react";
 import Navbar from "@/components/myComponents/Navbar";
 import BottomNav from "@/components/myComponents/BottomNav";
+import Footer from "@/components/myComponents/Footer";
 import { Providers } from "./providers";
 import ToastContainer from "@/components/myComponents/Toast";
 const geistSans = Geist({
@@ -101,6 +102,7 @@ export default function RootLayout({
               <main className="flex-1 mt-[110px] md:mt-[120px] pb-20 lg:pb-0">
                 {children}
               </main>
+              <Footer />
             </div>
 
             {/* Mobile Bottom Navigation */}

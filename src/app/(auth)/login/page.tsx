@@ -44,7 +44,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex items-center justify-center  mt-20 px-4">
+        <div className="flex items-center justify-center mb-20 mt-20 px-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
                 <div className="text-center mb-8">
                     <h1 className="text-2xl font-bold">Welcome back</h1>

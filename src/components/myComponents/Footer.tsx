@@ -52,8 +52,8 @@ export default function Footer() {
             <span>Make something awesome.</span>
           </div>
           <div className="flex gap-4">
-            <Link href="#" className="hover:text-black">Privacy Policy</Link>
-            <Link href="#" className="hover:text-black">Terms</Link>
+            <Link href="/privacy" className="hover:text-black">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-black">Terms</Link>
             <Link href="#" className="hover:text-black">Security</Link>
           </div>
         </div>
