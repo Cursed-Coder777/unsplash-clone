@@ -9,7 +9,7 @@ export default function ChangePasswordForm() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
+    const [error, setError] = useState(false);
     const [formData, setFormData] = useState({
         currentPassword: '',
         newPassword: '',
@@ -25,24 +25,26 @@ export default function ChangePasswordForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage('');
-        setIsError(false);
+        setMessage('Successfully updated password!');
+        setError(false);
 
         if (formData.newPassword !== formData.confirmPassword) {
             setMessage('Passwords do not match');
-            setIsError(true);
+            setError(true);
             return;
         }
 
-        if (formData.newPassword.length < 6) {
-            setMessage('Password must be at least 6 characters');
-            setIsError(true);
+        if (formData.newPassword.length < 8) {
+            setMessage('Password must be at least 8 characters');
+            setError(true);
             return;
         }
 
         setLoading(true);
 
+        // Fetch API call to change password
         try {
+            // Updating the password
             const res = await fetch('/api/user/change-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -62,7 +64,7 @@ export default function ChangePasswordForm() {
             setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         } catch (err: any) {
             setMessage(err.message);
-            setIsError(true);
+            setError(true);
         } finally {
             setLoading(false);
         }
@@ -88,7 +90,7 @@ export default function ChangePasswordForm() {
                     <h1 className="text-[24px] font-bold mb-8">Change password</h1>
 
                     {message && (
-                        <div className={`mb-6 p-4 rounded-[4px] text-[15px] ${isError ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
+                        <div className={`mb-6 p-4 rounded-[4px] text-[15px] ${error ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
                             {message}
                         </div>
                     )}

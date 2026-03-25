@@ -9,13 +9,13 @@ export default function CloseAccountForm() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
+    const [error, setError] = useState(false);
     const [currentPassword, setCurrentPassword] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setMessage('');
-        setIsError(false);
+        setError(false);
 
         if (!confirm('Are you absolutely sure you want to delete your account? This action is irreversible.')) {
             return;
@@ -42,7 +42,7 @@ export default function CloseAccountForm() {
             router.refresh();
         } catch (err: any) {
             setMessage(err.message);
-            setIsError(true);
+            setError(true);
             setLoading(false);
         }
     };
@@ -73,7 +73,7 @@ export default function CloseAccountForm() {
                     </div>
 
                     {message && (
-                        <div className={`mb-6 p-4 rounded-[4px] text-[15px] ${isError ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
+                        <div className={`mb-6 p-4 rounded-[4px] text-[15px] ${error ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'}`}>
                             {message}
                         </div>
                     )}

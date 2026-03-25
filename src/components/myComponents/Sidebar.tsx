@@ -56,7 +56,7 @@ const Sidebar = () => {
                         <Download size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                     </Tooltip>
                     <Tooltip text="Bookmarks" position="right">
-                        <Link href="/account/bookmarks">
+                        <Link href="/bookmarks">
                             <Bookmark size={24} strokeWidth={2} className='text-[#767676] hover:text-black cursor-pointer transition-colors' />
                         </Link>
                     </Tooltip>

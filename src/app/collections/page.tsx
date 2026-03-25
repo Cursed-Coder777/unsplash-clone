@@ -151,6 +151,7 @@ import { toast } from '@/components/myComponents/Toast';
 export default function CollectionsPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    console.log(router)
     const [collections, setCollections] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -163,6 +164,7 @@ export default function CollectionsPage() {
                 setCollections(data.collections);
             }
         } catch (error) {
+            toast.error('Failed to fetch collections');
             console.error('Error fetching collections:', error);
         } finally {
             setLoading(false);

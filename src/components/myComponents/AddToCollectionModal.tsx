@@ -108,7 +108,6 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
 
             if (res.ok) {
                 const data = await res.json();
-                // Automatically add photo to new collection if photo exists
                 if (photo) {
                     await handleTogglePhoto(data.collection._id, false);
                 }
@@ -126,16 +125,37 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
         }
     };
 
+    // ✅ Close on Escape key
+    useEffect(() => {
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [onClose]);
+
+    // ✅ Close on backdrop click
+    const handleBackdropClick = () => {
+        onClose();
+    };
+
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+        // ✅ Backdrop div - click here closes modal
+        <div
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={handleBackdropClick}  // 👈 Click on backdrop closes modal
+        >
+            {/* Modal Content - click here does NOT close modal */}
             <div
                 className="bg-white w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] sm:max-h-[600px] animate-in slide-in-from-bottom-4 duration-300"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}  // 👈 Prevents closing when clicking inside
             >
                 {/* Left Side: Photo Preview / Info */}
-                <div className="hidden md:block w-2/5 relative bg-gray-50 border-r border-gray-100 h-full min-h-[400px]">
+                <div className="hidden w-2/5 relative bg-gray-50 border-r border-gray-100 h-full min-h-[400px] md:flex md:flex-col md:items-center md:justify-center">
                     {photo ? (
                         <>
                             <Image
@@ -151,7 +171,7 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                             </div>
                         </>
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-gray-50 to-gray-100">
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-gray-50 to-gray-100 place-content-center">
                             <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm mb-6">
                                 <Plus size={40} className="text-gray-300" />
                             </div>
@@ -251,18 +271,18 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                     </div>
                                 ) : (
                                     <div className="grid gap-3">
-                                        {collections.map((coll) => {
-                                            const inCollection = !!(photo && coll.photos.some(p => p.photoId === photo.id));
+                                        {collections.map((collection) => {
+                                            const inCollection = !!(photo && collection.photos.some(p => p.photoId === photo.id));
                                             return (
                                                 <button
-                                                    key={coll._id}
-                                                    onClick={() => photo && handleTogglePhoto(coll._id, inCollection)}
+                                                    key={collection._id}
+                                                    onClick={() => photo && handleTogglePhoto(collection._id, inCollection)}
                                                     className={`flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-all group border border-transparent hover:border-gray-100 ${!photo && 'cursor-default'}`}
                                                 >
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden relative">
-                                                            {coll.coverPhoto ? (
-                                                                <Image src={coll.coverPhoto} alt="" fill className="object-cover" />
+                                                            {collection.coverPhoto ? (
+                                                                <Image src={collection.coverPhoto} alt="" fill className="object-cover" />
                                                             ) : (
                                                                 <div className="flex items-center justify-center h-full text-gray-300">
                                                                     <Plus size={24} />
@@ -271,18 +291,16 @@ export default function AddToCollectionModal({ isOpen, onClose, photo }: AddToCo
                                                         </div>
 
                                                         <div className="text-left">
-
-                                                            <p className="font-bold text-gray-900 group-hover:text-black transition-colors">{coll.title}</p>
+                                                            <p className="font-bold text-gray-900 group-hover:text-black transition-colors">{collection.title}</p>
                                                             <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-
-                                                                {coll.isPrivate ? <Lock size={10} /> : <Globe size={10} />}
-                                                                {coll.photos.length} photos
+                                                                {collection.isPrivate ? <Lock size={10} /> : <Globe size={10} />}
+                                                                {collection.photos.length} photos
                                                             </p>
                                                         </div>
                                                     </div>
                                                     {photo && (
                                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${inCollection ? 'bg-black border-black text-white' : 'border-gray-100 text-transparent group-hover:text-gray-300'}`}>
-                                                            {processingId === coll._id ? (
+                                                            {processingId === collection._id ? (
                                                                 <Loader2 size={16} className="animate-spin" />
                                                             ) : (
                                                                 <Check size={20} />

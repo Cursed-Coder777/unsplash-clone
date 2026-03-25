@@ -77,6 +77,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+    // ✅ Add suppressHydrationWarning to html and body
     <html lang="en">
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
@@ -94,8 +95,10 @@ export default function RootLayout({
         />
       </head>
       <Providers>
+        {/* ✅ Add suppressHydrationWarning to body as well */}
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          
         >
           <NextTopLoader color="#000000" showSpinner={false} />
           <LayoutWrapper>

@@ -1,4 +1,4 @@
-import { Bookmark, Plus, Wand2, Info, MoreHorizontal, Calendar, CircleCheck, ChevronDown } from 'lucide-react';
+import { Bookmark, Plus, Wand2, Info, MoreHorizontal, Calendar, CircleCheck, ChevronDown, Scissors, ScissorsIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -89,7 +89,7 @@ async function getTotalLikes(photoId: string): Promise<number> {
       cache: 'no-store'
     });
     const data = await res.json();
-    return data.likesCount ?? 0;
+    return data.likesCount || 0;
   } catch (error) {
     console.error('Failed to fetch likes:', error);
     return 0;
@@ -180,7 +180,7 @@ export default async function PhotoPage({ params }: Props) {
             </div>
 
             <button className="hidden md:flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:border-black hover:text-black transition">
-              <Wand2 size={16} />
+              <Scissors size={16} />
               <span>Edit image</span>
               <ChevronDown size={14} />
             </button>

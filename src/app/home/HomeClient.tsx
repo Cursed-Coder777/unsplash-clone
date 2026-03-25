@@ -68,7 +68,7 @@ interface HomeClientProps {
 const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) => {
     const searchParams = useSearchParams()
     const q = searchParams.get('q') || initialQ || 'nature'
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter()
     const [photos, setPhotos] = useState<UnsplashPhoto[]>(initialPhotos)
     const [loading, setLoading] = useState(false)
