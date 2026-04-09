@@ -8,7 +8,7 @@ import DownloadButton from '@/components/myComponents/DownloadButton'
 import ScrollToTop from '@/components/myComponents/ScrollToTop'
 import BookmarkButton from '@/components/myComponents/BookmarkButton'
 import LikeButton from '@/components/myComponents/LikeButton'
-import SponsoredPost from '@/components/myComponents/SponsoredPost'
+import AdContainer from '@/components/myComponents/AdContainer'
 import SearchFilters from '@/components/myComponents/SearchFilters'
 import { PhotoSkeleton } from '@/components/myComponents/Skeleton'
 import AddToCollectionModal from '@/components/myComponents/AddToCollectionModal'
@@ -81,7 +81,6 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
         color: '',
         orientation: ''
     })
-
     const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
@@ -141,7 +140,7 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                 const unique = Array.from(new Map(apiPhotos.map(photo => [photo.id, photo])).values())
                 setPhotos(unique)
             } else {
-                setPhotos(prev => dedupePhotos(prev, apiPhotos))
+                setPhotos(previousPhotos => dedupePhotos(previousPhotos, apiPhotos))
             }
             setHasMore(pageNum < data.total_pages)
         } catch (err) {
@@ -245,13 +244,10 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                             {column.map((item, photoIndex) => {
                                 if ('type' in item && item.type === 'ad') {
                                     return (
-                                        <SponsoredPost
+                                        <AdContainer
                                             key={item.id}
-                                            title="Elevate Your Creative Vision"
-                                            description="Get exclusive access to high-resolution photos."
-                                            imageUrl="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=400"
-                                            sponsorName="CreativePro"
-                                            targetUrl="https://unsplash.com"
+                                            adSlot="5877867031"
+                                            adFormat="auto"
                                         />
                                     );
                                 }

@@ -24,11 +24,13 @@ export default function BookmarksPage() {
 
     useEffect(() => {
         if (status === 'unauthenticated') {
+            toast.error('Please login to view your bookmarks');
             setLoading(false);
             return;
         }
         
         if (status === 'authenticated') {
+            toast.success('Bookmarks loaded');
             fetchBookmarks();
         }
     }, [status]);

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/components/myComponents/Footer';
 import Link from 'next/link';
 
+
 export default function CloseAccountForm() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ export default function CloseAccountForm() {
         if (!confirm('Are you absolutely sure you want to delete your account? This action is irreversible.')) {
             return;
         }
+        
 
         setLoading(true);
 
@@ -58,7 +60,9 @@ export default function CloseAccountForm() {
                         <li><Link href="#" className="hover:text-black transition-colors">Email settings</Link></li>
                         <li><Link href="/account/changePassword" title="Current settings" className="hover:text-black transition-colors">Change password</Link></li>
                         <li><Link href="#" className="hover:text-black transition-colors">Applications</Link></li>
-                        <li><Link href="/account/close" className="font-semibold text-black">Close account</Link></li>
+                        <li>
+                            
+                            <Link href="/account/close" className="font-semibold text-black">Close account</Link></li>
                     </ul>
                 </div>
 

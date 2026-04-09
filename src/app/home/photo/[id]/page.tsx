@@ -99,7 +99,7 @@ async function getTotalLikes(photoId: string): Promise<number> {
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
   const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffTime = Math.abs(now.getTime() - date.getTime()); // number ko upar round karta hai.
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays < 7) return `Published ${diffDays} days ago`;

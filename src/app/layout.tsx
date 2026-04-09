@@ -87,9 +87,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://plus.unsplash.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <meta name="google-adsense-account" content="ca-pub-2708237217895756" />
         <Script
+          id="adsense-init"
           async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-0000000000000000'}`}
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-2708237217895756'}`}
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />

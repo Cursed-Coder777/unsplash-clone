@@ -8,10 +8,10 @@ interface AdContainerProps {
   fullWidthResponsive?: boolean;
 }
 
-export default function AdContainer({ 
-  adSlot, 
-  adFormat = 'auto', 
-  fullWidthResponsive = true 
+export default function AdContainer({
+  adSlot,
+  adFormat = 'auto',
+  fullWidthResponsive = true
 }: AdContainerProps) {
   useEffect(() => {
     try {
@@ -27,7 +27,7 @@ export default function AdContainer({
       <ins
         className="adsbygoogle"
         style={{ display: 'block', width: '100%' }}
-        data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-0000000000000000'}
+        data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || 'ca-pub-2708237217895756'}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-full-width-responsive={fullWidthResponsive.toString()}

@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions, User as NextAuthUser, Session } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { connectToDb } from '@/lib/db';
@@ -6,7 +6,22 @@ import User from '@/lib/models/User';
 import { comparePassword, generateToken } from '@/lib/utils';
 import { cookies } from 'next/headers';
 
-export const authOptions = {
+// Extend the built-in session and user types
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            image?: string | null;
+        }
+    }
+    interface User {
+        dbId?: string;
+    }
+}
+
+export const authOptions: NextAuthOptions = {
     providers: [
         // ── Google OAuth ────────────────────────────────────────────────
         GoogleProvider({
@@ -51,32 +66,30 @@ export const authOptions = {
     ],
 
     session: {
-        strategy: 'jwt' as const,
+        strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60,
     },
 
     callbacks: {
-        // Called after successful sign in — used to sync Google user into our DB
-        async signIn({ user, account, profile }: any) {
+        async signIn({ user, account, profile }) {
             if (account?.provider === 'google') {
                 try {
                     await connectToDb();
 
                     const email = user.email;
-                    const googleId = profile?.sub || account?.providerAccountId;
-                    const firstName = profile?.given_name || user.name?.split(' ')[0] || '';
-                    const lastName = profile?.family_name || user.name?.split(' ').slice(1).join(' ') || '';
-                    const avatar = user.image || '';
+                    if (!email) return false;
 
-                    // Generate a unique username from email prefix
-                    const baseUsername = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+                    const googleProfile = profile as any; // profile for google includes sub, given_name, etc.
+                    const googleId = googleProfile?.sub || account.providerAccountId;
+                    const firstName = googleProfile?.given_name || (user.name?.split(' ')[0] || '');
+                    const lastName = googleProfile?.family_name || (user.name?.split(' ').slice(1).join(' ') || '');
+                    const avatar = user.image || '';
 
                     let existingUser = await User.findOne({ email });
 
                     if (!existingUser) {
-                        // New user: create in our collection
+                        const baseUsername = email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
                         let username = baseUsername;
-                        // Ensure username uniqueness
                         let count = 0;
                         while (await User.findOne({ username })) {
                             username = `${baseUsername}${++count}`;
@@ -90,52 +103,47 @@ export const authOptions = {
                             avatar,
                             googleId,
                             provider: 'google',
-                            isVerified: true, // Google accounts are pre-verified
+                            isVerified: true,
                         });
-                    } else {
-                        // Existing user: update Google fields if missing
-                        if (!existingUser.googleId) {
-                            await User.findByIdAndUpdate(existingUser._id, {
-                                googleId,
-                                provider: existingUser.provider || 'google',
-                                avatar: existingUser.avatar || avatar,
-                                isVerified: true,
-                            });
-                        }
+                    } else if (!existingUser.googleId) {
+                        await User.findByIdAndUpdate(existingUser._id, {
+                            googleId,
+                            provider: 'google',
+                            isVerified: true,
+                        });
                     }
 
-                    // ── Set custom JWT cookie so all /api/user/* routes work ──
+                    // Set custom JWT cookie for other API routes
                     const jwtToken = generateToken(existingUser._id.toString());
                     const cookieStore = await cookies();
                     cookieStore.set('token', jwtToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === 'production',
                         sameSite: 'lax',
-                        maxAge: 60 * 60 * 24 * 7, // 7 days
+                        maxAge: 60 * 60 * 24 * 7,
                         path: '/',
                     });
 
-                    // Attach our DB user id to the NextAuth user object
+                    // Attach DB id to the NextAuth user object for the jwt callback
                     user.dbId = existingUser._id.toString();
 
                 } catch (err) {
                     console.error('Google signIn sync error:', err);
-                    // Don't block sign-in if sync fails
                 }
             }
             return true;
         },
 
-        async jwt({ token, user, account }: any) {
+        async jwt({ token, user }) {
             if (user) {
-                token.sub = user.dbId || user.id;
+                token.id = user.dbId || user.id;
             }
             return token;
         },
 
-        async session({ session, token }: any) {
+        async session({ session, token }) {
             if (token && session.user) {
-                session.user.id = token.sub as string;
+                session.user.id = token.id as string;
             }
             return session;
         },
@@ -150,4 +158,11 @@ export const authOptions = {
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+
+export async function GET(req: any, res: any) {
+    return await handler(req, res);
+}
+
+export async function POST(req: any, res: any) {
+    return await handler(req, res);
+}
