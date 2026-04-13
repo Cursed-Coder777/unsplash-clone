@@ -68,19 +68,19 @@ const Register = () => {
             </div>
             
             {/* Right div */}
-            <div className="lg:w-[50%] w-full flex flex-col items-center mt-10 lg:mt-20 px-4">
+            <div className="lg:w-[50%] w-full flex flex-col items-center mt-10 lg:mt-20 px-4 bg-white dark:bg-black transition-colors">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold">Join Unsplash</h1>
-                    <p className="text-sm">
+                    <h1 className="text-3xl font-bold dark:text-white">Join Unsplash</h1>
+                    <p className="text-sm dark:text-gray-400">
                         Already have an account?{' '}
-                        <Link href="/login" className="text-gray-400 underline">
+                        <Link href="/login" className="text-gray-400 dark:text-blue-400 underline">
                             Login
                         </Link>
                     </p>
                 </div>
 
                 {error && (
-                    <div className="w-full max-w-[500px] bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-4">
+                    <div className="w-full max-w-[500px] bg-red-50 dark:bg-red-900/10 text-red-500 p-3 rounded-lg text-sm mb-4">
                         {error}
                     </div>
                 )}
@@ -89,29 +89,31 @@ const Register = () => {
                     <FieldGroup className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Field>
-                                <FieldLabel htmlFor="firstName">First name</FieldLabel>
+                                <FieldLabel htmlFor="firstName" className="dark:text-gray-300">First name</FieldLabel>
                                 <Input 
                                     id="firstName" 
                                     type="text" 
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
+                                    className="dark:bg-gray-900 dark:border-gray-800 dark:text-white"
                                 />
                             </Field>
                             <Field>
-                                <FieldLabel htmlFor="lastName">Last name</FieldLabel>
+                                <FieldLabel htmlFor="lastName" className="dark:text-gray-300">Last name</FieldLabel>
                                 <Input 
                                     id="lastName" 
                                     type="text" 
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
+                                    className="dark:bg-gray-900 dark:border-gray-800 dark:text-white"
                                 />
                             </Field>
                         </div>
 
                         <Field>
-                            <FieldLabel htmlFor="email">Email</FieldLabel>
+                            <FieldLabel htmlFor="email" className="dark:text-gray-300">Email</FieldLabel>
                             <Input 
                                 id="email" 
                                 type="email" 
@@ -119,12 +121,13 @@ const Register = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
+                                className="dark:bg-gray-900 dark:border-gray-800 dark:text-white"
                             />
                         </Field>
 
                         <Field>
-                            <FieldLabel htmlFor="username">
-                                Username <span className="text-gray-500">(only letters, numbers and underscores)</span>
+                            <FieldLabel htmlFor="username" className="dark:text-gray-300">
+                                Username <span className="text-gray-500 dark:text-gray-500">(only letters, numbers and underscores)</span>
                             </FieldLabel>
                             <Input 
                                 id="username" 
@@ -134,12 +137,13 @@ const Register = () => {
                                 value={formData.username}
                                 onChange={handleChange}
                                 required
+                                className="dark:bg-gray-900 dark:border-gray-800 dark:text-white"
                             />
                         </Field>
 
                         <Field>
-                            <FieldLabel htmlFor="password">
-                                Password <span className="text-gray-500">(min. 8 char)</span>
+                            <FieldLabel htmlFor="password" className="dark:text-gray-300">
+                                Password <span className="text-gray-500 dark:text-gray-500">(min. 8 char)</span>
                             </FieldLabel>
                             <Input 
                                 id="password" 
@@ -148,19 +152,20 @@ const Register = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
+                                className="dark:bg-gray-900 dark:border-gray-800 dark:text-white"
                             />
                         </Field>
 
                         <Field orientation="vertical" className="flex flex-col items-center justify-center mt-6">
                             <Button 
                                 type="submit" 
-                                className="w-full h-10"
+                                className="w-full h-10 bg-black dark:bg-white text-white dark:text-black font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                                 disabled={loading}
                             >
                                 {loading ? 'Creating account...' : 'Join'}
                             </Button>
 
-                            <small className="text-gray-500 mt-4 text-center">
+                            <small className="text-gray-500 dark:text-gray-400 mt-4 text-center">
                                 By joining, you agree to the <span className="underline cursor-pointer">Terms</span> and{' '}
                                 <span className="underline cursor-pointer">Privacy Policy</span>.
                             </small>

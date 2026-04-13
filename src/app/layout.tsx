@@ -73,12 +73,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     // ✅ Add suppressHydrationWarning to html and body
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
@@ -96,19 +98,18 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
       </head>
-      <Providers>
-        {/* ✅ Add suppressHydrationWarning to body as well */}
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          
-        >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <Providers>
           <NextTopLoader color="#000000" showSpinner={false} />
           <LayoutWrapper>
             {children}
+            {modal}
           </LayoutWrapper>
           <SpeedInsights />
-        </body>
-      </Providers>
+        </Providers>
+      </body>
     </html>
   );
 }

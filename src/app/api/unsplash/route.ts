@@ -8,8 +8,9 @@ export const GET = async (request: Request) => {
         const color = searchParams.get('color')
         const orientation = searchParams.get('orientation')
         const order_by = searchParams.get('order_by') || 'relevant'
+        const content_filter = searchParams.get('content_filter') || 'high'
 
-        let url = `https://api.unsplash.com/search/photos?query=${query}&page=${page}&per_page=20&order_by=${order_by}`
+        let url = `https://api.unsplash.com/search/photos?query=${query}&page=${page}&per_page=20&order_by=${order_by}&content_filter=${content_filter}`
         if (color) url += `&color=${color}`
         if (orientation) url += `&orientation=${orientation}`
 

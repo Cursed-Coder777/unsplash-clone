@@ -107,14 +107,14 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
     const displayInitials = (user?.firstName?.[0] || displayName?.[0] || 'U').toUpperCase();
 
     if (loading || sessionStatus === 'loading') {
-        return <div className="w-10 h-10 rounded-full bg-gray-100 animate-pulse border border-gray-200"></div>;
+        return <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse border border-gray-200 dark:border-gray-700"></div>;
     }
 
     // Sidebar variant
     if (variant === 'sidebar') {
         const trigger = user || session?.user ? (
             <Tooltip text={displayName} position="right">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex items-center justify-center hover:opacity-80 transition cursor-pointer">
                     {displayAvatar ? (
                         <img
                             src={displayAvatar}
@@ -127,7 +127,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                         />
                     ) : null}
                     {!displayAvatar && (
-                        <span className="text-gray-600 text-sm font-bold uppercase">
+                        <span className="text-gray-600 dark:text-gray-400 text-sm font-bold uppercase">
                             {displayInitials}
                         </span>
                     )}
@@ -136,7 +136,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
 
         ) : (
             <Tooltip text="Login" position="right">
-                <Link href="/login" className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:text-black hover:bg-gray-100 transition">
+                <Link href="/login" className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                     <UserCircle size={28} />
                 </Link>
             </Tooltip>
@@ -151,9 +151,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                 </button>
 
                 {isOpen && (user || session?.user) && (
-                    <div className="absolute -bottom-[100px] left-full ml-4 w-64 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-[9999] animate-in fade-in slide-in-from-left-2 duration-200">
-                        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                    <div className="absolute -bottom-[100px] left-full ml-4 w-64 bg-white dark:bg-gray-900 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-gray-800 py-2 z-[9999] animate-in fade-in slide-in-from-left-2 duration-200">
+                        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                                 {displayAvatar ? (
                                     <img
                                         src={displayAvatar}
@@ -161,13 +161,13 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <span className="text-gray-500 text-lg font-bold uppercase">
+                                    <span className="text-gray-500 dark:text-gray-400 text-lg font-bold uppercase">
                                         {displayInitials}
                                     </span>
                                 )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-gray-900 text-sm truncate">
+                                <div className="font-semibold text-gray-900 dark:text-white text-sm truncate">
                                     {user?.username || displayName}
                                 </div>
                                 <div className="text-xs text-gray-500 truncate">
@@ -185,7 +185,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                         <div className="px-2 py-1">
                             <Link
                                 href={`/@${user?.username || session?.user?.email?.split('@')[0]}`}
-                                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                                 onClick={() => setIsOpen(false)}
                             >
                                 <Tooltip text="View profile" position="right">
@@ -195,7 +195,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                             </Link>
                             <Link
                                 href="/account/"
-                                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                                 onClick={() => setIsOpen(false)}
                             >
                                 <Tooltip text="Account settings" position="right">
@@ -205,10 +205,10 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                             </Link>
                         </div>
 
-                        <div className="border-t border-gray-100 mt-1 pt-1 px-2">
+                        <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1 px-2">
                             <button
                                 onClick={handleLogout}
-                                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors font-medium"
                             >
                                 <Tooltip text="Log out" position="right">
                                     <LogOut size={16} />
@@ -229,13 +229,13 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                 <div className="flex flex-col gap-3">
                     <Link
                         href="/login"
-                        className="block w-full text-center bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                        className="block w-full text-center bg-black dark:bg-white text-white dark:text-black py-3 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                     >
                         Login
                     </Link>
                     <Link
                         href="/register"
-                        className="block w-full text-center border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                        className="block w-full text-center border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                         Join Free
                     </Link>
@@ -247,9 +247,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
             <div className="space-y-4">
                 <Link
                     href="/account"
-                    className="flex items-center gap-3 w-full bg-white border border-gray-200 p-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 flex items-center justify-center">
                         {displayAvatar ? (
                             <img src={displayAvatar} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -257,14 +257,14 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                         )}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-semibold truncate text-gray-900">{displayName}</p>
-                        <p className="text-xs text-gray-500 truncate">View Profile</p>
+                        <p className="text-sm font-semibold truncate text-gray-900 dark:text-white">{displayName}</p>
+                        <p className="text-xs text-gray-500">View Profile</p>
                     </div>
                 </Link>
 
                 <button
                     onClick={handleLogout}
-                    className="w-full py-2.5 text-center text-sm text-red-500 font-medium hover:bg-red-50 rounded-lg transition-colors border border-red-50"
+                    className="w-full py-2.5 text-center text-sm text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors border border-red-50 dark:border-red-900/20"
                 >
                     Sign out
                 </button>
@@ -275,7 +275,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
     // Default Navbar/Bottom Variant
     if (!user && !session?.user) {
         return (
-            <Link href="/login" className="text-[#767676] hover:text-black text-sm font-medium transition-colors">
+            <Link href="/login" className="text-[#767676] dark:text-gray-400 hover:text-black dark:hover:text-white text-sm font-medium transition-colors">
                 Login
             </Link>
         );
@@ -286,9 +286,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
             <Tooltip text='User' position='bottom'>
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center gap-2 hover:bg-gray-100 p-1 rounded-full transition-all"
+                    className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded-full transition-all"
                 >
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 border border-gray-100 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 flex items-center justify-center">
                         {displayAvatar ? (
                             <img
                                 src={displayAvatar}
@@ -301,7 +301,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                             />
                         ) : null}
                         {!displayAvatar && (
-                            <span className="text-gray-600 text-xs font-bold uppercase">
+                            <span className="text-gray-600 dark:text-gray-400 text-xs font-bold uppercase">
                                 {displayInitials}
                             </span>
                         )}
@@ -310,9 +310,9 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
             </Tooltip>
 
             {isOpen && (
-                <div className={`absolute right-0 ${variant === 'bottom' ? 'bottom-full mb-3' : 'mt-3'} w-64 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-50 animate-in fade-in ${variant === 'bottom' ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'} duration-200`}>
-                    <div className="px-4 py-3 border-b border-gray-100">
-                        <div className="font-semibold text-gray-900 text-sm truncate">
+                <div className={`absolute right-0 ${variant === 'bottom' ? 'bottom-full mb-3' : 'mt-3'} w-64 bg-white dark:bg-gray-900 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-gray-800 py-2 z-50 animate-in fade-in ${variant === 'bottom' ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'} duration-200`}>
+                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                        <div className="font-semibold text-gray-900 dark:text-white text-sm truncate">
                             {displayName}
                         </div>
                         <div className="text-xs text-gray-500 truncate">
@@ -325,7 +325,7 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                     <div className="px-2 py-1">
                         <Link
                             href={`/@${user?.username || session?.user?.email?.split('@')[0]}`}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
                             <User size={16} className="text-gray-400" />
@@ -333,17 +333,17 @@ export default function UserMenu({ variant = 'navbar' }: UserMenuProps) {
                         </Link>
                         <Link
                             href="/account"
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             onClick={() => setIsOpen(false)}
                         >
                             <Settings size={16} className="text-gray-400" />
                             <span>Account settings</span>
                         </Link>
                     </div>
-                    <div className="border-t border-gray-100 mt-1 pt-1 px-2">
+                    <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1 px-2">
                         <button
                             onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors font-medium"
                         >
                             <LogOut size={16} />
                             <span>Sign out</span>

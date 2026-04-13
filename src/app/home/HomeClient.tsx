@@ -16,6 +16,8 @@ import SharePhoto from '@/components/myComponents/SharePhoto'
 import Tooltip from '@/components/myComponents/Tooltip'
 import { useSession } from 'next-auth/react'
 import { toast } from '@/components/myComponents/Toast'
+import Lightbox from '@/components/myComponents/Lightbox'
+import Masonry from 'react-masonry-css'
 
 export interface UnsplashPhoto {
     id: string
@@ -51,10 +53,29 @@ export interface UnsplashPhoto {
         id: string
         username: string
         name: string
+        location?: string
         profile_image: {
             small: string
             medium: string
             large: string
+        }
+    }
+    exif?: {
+        make: string | null
+        model: string | null
+        name: string | null
+        exposure_time: string | null
+        aperture: string | null
+        focal_length: string | null
+        iso: number | null
+    }
+    location?: {
+        name: string | null
+        city: string | null
+        country: string | null
+        position: {
+            latitude: number | null
+            longitude: number | null
         }
     }
 }
@@ -79,7 +100,10 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
     const [filters, setFilters] = useState({
         order_by: 'relevant',
         color: '',
-        orientation: ''
+        orientation: '',
+        content_filter: 'high',
+        camera: '',
+        dateRange: ''
     })
     const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -108,13 +132,23 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
             let searchQuery = q;
             const isAiEnabled = searchParams.get('ai') === 'true';
 
+            // Handle Camera Filter (Append to query)
+            if (filters.camera) {
+                searchQuery += ` ${filters.camera}`;
+            }
+
+            // Handle Date Range (Unsplash Latest usually covers this, but we can add words)
+            if (filters.dateRange === 'today') {
+                searchQuery += ' today';
+            }
+
             if (isNewSearch && isAiEnabled && q !== 'nature') {
                 setIsAiExpanding(true);
                 try {
                     const expandRes = await fetch('/api/ai/search/expand', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query: q })
+                        body: JSON.stringify({ query: searchQuery })
                     });
                     if (expandRes.ok) {
                         const expandData = await expandRes.json();
@@ -127,7 +161,7 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
                 }
             }
 
-            let apiUrl = `/api/unsplash?query=${encodeURIComponent(searchQuery)}&page=${pageNum}&order_by=${filters.order_by}`
+            let apiUrl = `/api/unsplash?query=${encodeURIComponent(searchQuery)}&page=${pageNum}&order_by=${filters.order_by}&content_filter=${filters.content_filter}`
             if (filters.color) apiUrl += `&color=${filters.color}`
             if (filters.orientation) apiUrl += `&orientation=${filters.orientation}`
 
@@ -151,12 +185,43 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
         }
     }
 
+    // Save photo data for modal navigation (Performance optimization)
     useEffect(() => {
-        if (q !== initialQ || filters.order_by !== 'relevant' || filters.color || filters.orientation) {
-            setPage(1)
-            fetchPhotos(1, true)
+        if (photos.length > 0) {
+            const ids = photos.map(p => p.id);
+            sessionStorage.setItem('current_photo_ids', JSON.stringify(ids));
+
+            // For instant modal loading, cache a few detailed fields of the current photos
+            // We only store essential fields to keep sessionStorage under limit
+            const cacheData = photos.reduce((acc, p) => {
+                acc[p.id] = {
+                    id: p.id,
+                    urls: p.urls,
+                    alt_description: p.alt_description,
+                    description: p.description,
+                    created_at: p.created_at,
+                    user: p.user,
+                    width: p.width,
+                    height: p.height,
+                    color: p.color
+                };
+                return acc;
+            }, {} as Record<string, any>);
+            sessionStorage.setItem('photo_cache', JSON.stringify(cacheData));
         }
-    }, [q, filters])
+    }, [photos]);
+
+    const isFirstMount = useRef(true);
+
+    useEffect(() => {
+        if (isFirstMount.current) {
+            isFirstMount.current = false;
+            return;
+        }
+
+        setPage(1);
+        fetchPhotos(1, true);
+    }, [q, filters]);
 
     const loadMore = () => {
         if (loadingMore || !hasMore || loading) return
@@ -179,196 +244,214 @@ const HomeClient = ({ initialPhotos, q: initialQ, aiSearch }: HomeClientProps) =
         return () => observerRef.current?.disconnect()
     }, [loading, hasMore, loadingMore, page, q, filters])
 
-    const handleImageClick = (photoId: string) => {
-        router.push(`/home/photo/${photoId}`, { scroll: false });
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+    const [currentLightboxIndex, setCurrentLightboxIndex] = useState(0);
+
+    const handleImageClick = (photoId: string, index: number) => {
+        // We now use intercepted routes
+        router.push(`/photos/${photoId}`, { scroll: false });
     };
 
-    const columns = useMemo(() => {
-        const cols: (UnsplashPhoto | { type: 'ad'; id: string })[][] = [[], [], []];
-        const colHeights = [0, 0, 0];
-
-        photos.forEach((photo, index) => {
-            const minHeightIndex = colHeights.indexOf(Math.min(...colHeights));
-            if (index > 0 && index % 12 === 0) {
-                cols[minHeightIndex].push({ type: 'ad', id: `ad-${index}` });
-                colHeights[minHeightIndex] += 1.25;
+    // Close lightbox on URL change if it was opened via URL
+    useEffect(() => {
+        const photoId = searchParams.get('photo');
+        if (photoId) {
+            const index = photos.findIndex(p => p.id === photoId);
+            if (index !== -1) {
+                setCurrentLightboxIndex(index);
+                setIsLightboxOpen(true);
             }
-            const targetCol = colHeights.indexOf(Math.min(...colHeights));
-            cols[targetCol].push(photo);
-            colHeights[targetCol] += (photo.height / photo.width);
+        }
+    }, [searchParams, photos]);
+
+    const items = useMemo(() => {
+        const result: (UnsplashPhoto | { type: 'ad'; id: string })[] = [];
+        photos.forEach((photo, index) => {
+            // Insert ad every 8 items (better for grid)
+            if (index > 0 && index % 8 === 0) {
+                result.push({ type: 'ad', id: `ad-${index}` });
+            }
+            result.push(photo);
         });
-        return cols;
+        return result;
     }, [photos]);
+
 
     if (error) {
         return (
             <div className="container mx-auto p-10 text-center">
-                <h2 className="text-xl text-red-500 mb-4">{error}</h2>
-                <button onClick={() => fetchPhotos(1, true)} className="bg-black text-white px-6 py-2 rounded-lg">Try Again</button>
+                <h2 className="text-xl text-red-500 mb-4 font-bold">{error}</h2>
+                <button onClick={() => fetchPhotos(1, true)} className="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-lg font-bold hover:opacity-80 transition-opacity">Try Again</button>
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col container mx-auto px-4">
-            <h1 className="text-2xl font-bold mt-4 mb-2 capitalize flex items-center gap-3">
-                {q}
-                {searchParams.get('ai') === 'true' && (
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <Wand2 size={10} /> AI Enhanced
-                    </span>
+        <div className="flex flex-col w-full">
+            <div className="container px-4">
+                <h1 className="text-2xl font-bold mt-4 mb-2 capitalize flex items-center gap-3 dark:text-white">
+                    {q}
+                    {searchParams.get('ai') === 'true' && (
+                        <span className="text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Wand2 size={10} /> AI Enhanced
+                        </span>
+                    )}
+                </h1>
+
+                {isAiExpanding && (
+                    <div className="mb-4 flex items-center gap-3 text-purple-600 animate-pulse">
+                        <Loader2 className="animate-spin" size={16} />
+                        <span className="text-sm font-bold tracking-wide italic">AI is understanding your mood & expanding results...</span>
+                    </div>
                 )}
-            </h1>
-
-            {isAiExpanding && (
-                <div className="mb-4 flex items-center gap-3 text-purple-600 animate-pulse">
-                    <Loader2 className="animate-spin" size={16} />
-                    <span className="text-sm font-bold tracking-wide italic">AI is understanding your mood & expanding results...</span>
-                </div>
-            )}
-
-            <SearchFilters
-                onFilterChange={(newFilters) => setFilters(newFilters)}
-            />
-
-            {loading && photos.length === 0 ? (
-                <div className="flex flex-col lg:flex-row gap-4">
-                    <div className="flex-1"><PhotoSkeleton /></div>
-                    <div className="hidden sm:block flex-1"><PhotoSkeleton /></div>
-                    <div className="hidden lg:block flex-1"><PhotoSkeleton /></div>
-                </div>
-            ) : (
-                <div className='flex flex-col lg:flex-row gap-4'>
-                    {columns.map((column, colIndex) => (
-                        <div key={colIndex} className="flex-1 flex flex-col gap-4">
-                            {column.map((item, photoIndex) => {
-                                if ('type' in item && item.type === 'ad') {
-                                    return (
-                                        <AdContainer
-                                            key={item.id}
-                                            adSlot="5877867031"
-                                            adFormat="auto"
-                                        />
-                                    );
-                                }
-                                const photo = item as UnsplashPhoto;
-                                return (
-                                    <div
-                                        key={photo.id}
-                                        className="relative group rounded-xl break-inside-avoid cursor-pointer overflow-hidden"
-                                        onClick={() => handleImageClick(photo.id)}
-                                    >
-                                        <div
-                                            className="group relative overflow-hidden break-inside-avoid cursor-pointer z-0"
-                                            style={{ backgroundColor: photo.color || '#f3f3f3' }}
-                                        >
-                                            {/* Blur placeholder using thumb */}
-                                            <img
-                                                src={photo.urls.thumb}
-                                                aria-hidden="true"
-                                                className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl"
-                                            />
-                                            <Image
-                                                src={photo.urls.small}
-                                                width={photo.width}
-                                                height={photo.height}
-                                                alt={photo.alt_description || `High resolution photo by ${photo.user.name}`}
-                                                className="relative w-full h-auto transition-all duration-700 group-hover:scale-105"
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                priority={photoIndex < 4 && colIndex < 3}
-                                                onLoad={(e) => {
-                                                    const img = e.currentTarget;
-                                                    const blur = img.previousElementSibling as HTMLElement;
-                                                    if (blur) blur.style.opacity = '0';
-                                                }}
-                                            />
-                                        </div>
-                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
-                                            <div className='absolute top-4 right-4 flex gap-2 z-10' onClick={(e) => e.stopPropagation()}>
-                                                <Tooltip text="Like" position='bottom'>
-                                                    <LikeButton photoId={photo.id} className='bg-white/90 backdrop-blur-sm shadow-sm' />
-                                                </Tooltip>
-                                                <Tooltip text="Bookmark" position='bottom'>
-                                                    <BookmarkButton photoId={photo.id} className='bg-white/90 backdrop-blur-sm shadow-sm' />
-                                                </Tooltip>
-                                                <Tooltip text="Add to Collection" position='bottom'>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            if (status !== 'authenticated') {
-                                                                toast.error('Please login to create or manage collections');
-                                                                return;
-                                                            }
-                                                            setSelectedPhoto(photo);
-                                                            setIsCollectionModalOpen(true);
-                                                        }}
-                                                        className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                        aria-label="Add photo to collection"
-                                                    >
-                                                        <Plus size={18} />
-                                                    </button>
-                                                </Tooltip>
-                                                <Tooltip text="Share" position='bottom'>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            if (status !== 'authenticated') {
-                                                                toast.error('Please login to share photos');
-                                                                return;
-                                                            }
-                                                            setSelectedPhoto({ id: photo.id, url: photo.urls.regular, title: photo.description || photo.alt_description });
-                                                            setIsShareModalOpen(true);
-                                                        }}
-                                                        className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
-                                                        aria-label="Share photo"
-                                                    >
-                                                        <Share2 size={16} />
-                                                    </button>
-                                                </Tooltip>
-                                            </div>
-                                            <div className='absolute bottom-4 right-4' onClick={(e) => e.stopPropagation()}>
-                                                <Tooltip text="Download">
-                                                    <DownloadButton photoId={photo.id} photoUrls={photo.urls} className='z-10' />
-                                                </Tooltip>
-                                            </div>
-                                            <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                                                {photo.user.profile_image?.small && (
-                                                    <Image src={photo.user.profile_image.small} alt={photo.user.name} width={32} height={32} className='rounded-full w-8 h-8 object-cover border-2 border-white/50' />
-                                                )}
-                                                <p className="text-white text-sm font-semibold drop-shadow-md">{photo.user.name}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))
-                    }
-                </div >
-            )}
-
-            <div ref={loadMoreRef} className="w-full py-10 flex justify-center">
-                {loadingMore && <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>}
             </div>
 
-            {
-                photos.length === 0 && !loading && (
-                    <div className="text-center py-20">
-                        <p className="text-gray-500 text-lg">No photos found for &quot;{q}&quot;</p>
-                    </div>
-                )
-            }
+            {/* Filter bar - Spans full width with solid background */}
+            <div className="w-full border-b border-gray-100 dark:border-gray-800 sticky top-[108px] lg:top-[110px] bg-white dark:bg-[#111111] z-20 transition-all duration-300">
+                <div className="max-w-full px-4 lg:px-6">
+                    <SearchFilters
+                        onFilterChange={(newFilters) => setFilters(newFilters)}
+                    />
+                </div>
+            </div>
 
-            {
-                selectedPhoto && (
-                    <>
-                        <AddToCollectionModal isOpen={isCollectionModalOpen} onClose={() => setIsCollectionModalOpen(false)} photo={selectedPhoto} />
-                        <SharePhoto isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} photo={selectedPhoto} />
-                    </>
-                )
-            }
-            <ScrollToTop />
-        </div >
+            <div className="container mx-auto px-4 mt-8">
+                {loading && photos.length === 0 ? (
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <div className="flex-1"><PhotoSkeleton /></div>
+                        <div className="hidden sm:block flex-1"><PhotoSkeleton /></div>
+                        <div className="hidden lg:block flex-1"><PhotoSkeleton /></div>
+                    </div>
+                ) : (
+                    <Masonry
+                        breakpointCols={{ default: 3, 1024: 2, 640: 1 }}
+                        className="flex w-auto gap-4 lg:gap-6"
+                        columnClassName="bg-clip-padding flex flex-col gap-4 lg:gap-6"
+                    >
+                        {items.map((item, photoIndex) => {
+                            if ('type' in item && item.type === 'ad') {
+                                return (
+                                    <AdContainer
+                                        key={item.id}
+                                        adSlot="4544908958"
+                                        adLayoutKey="-6n+ef+1v-2l-b"
+                                        adFormat="fluid"
+                                        className="w-full"
+                                    />
+                                );
+                            }
+                            const photo = item as UnsplashPhoto;
+                            return (
+                                <div
+                                    key={photo.id}
+                                    className="relative group rounded-xl break-inside-avoid cursor-pointer overflow-hidden"
+                                    onClick={() => handleImageClick(photo.id, photos.indexOf(photo))}
+                                    style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
+                                >
+                                    <div
+                                        className="absolute inset-0 bg-gray-200 dark:bg-gray-800 transition-opacity duration-300 pointer-events-none"
+                                        style={{ backgroundColor: photo.color || '#f3f3f3' }}
+                                    />
+                                    <Image
+                                        src={photo.urls.small}
+                                        fill
+                                        alt={photo.alt_description || `High resolution photo by ${photo.user.name}`}
+                                        className="object-cover transition-all duration-700 group-hover:scale-105"
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        priority={photoIndex < 10}
+                                    />
+                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto z-10">
+                                        <div className='absolute top-4 right-4 flex gap-2' onClick={(e) => e.stopPropagation()}>
+                                            <Tooltip text="Like" position='bottom'>
+                                                <LikeButton photoId={photo.id} className='bg-white/90 backdrop-blur-sm shadow-sm' />
+                                            </Tooltip>
+                                            <Tooltip text="Bookmark" position='bottom'>
+                                                <BookmarkButton photoId={photo.id} className='bg-white/90 backdrop-blur-sm shadow-sm' />
+                                            </Tooltip>
+                                            <Tooltip text="Add to Collection" position='bottom'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (status !== 'authenticated') {
+                                                            toast.error('Please login to create or manage collections');
+                                                            return;
+                                                        }
+                                                        setSelectedPhoto(photo);
+                                                        setIsCollectionModalOpen(true);
+                                                    }}
+                                                    className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                    aria-label="Add photo to collection"
+                                                >
+                                                    <Plus size={18} />
+                                                </button>
+                                            </Tooltip>
+                                            <Tooltip text="Share" position='bottom'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (status !== 'authenticated') {
+                                                            toast.error('Please login to share photos');
+                                                            return;
+                                                        }
+                                                        setSelectedPhoto({ id: photo.id, url: photo.urls.regular, title: photo.description || photo.alt_description });
+                                                        setIsShareModalOpen(true);
+                                                    }}
+                                                    className='bg-white/90 backdrop-blur-sm w-[40px] h-[32px] flex items-center justify-center rounded-lg text-gray-700 hover:bg-white transition-all shadow-sm'
+                                                    aria-label="Share photo"
+                                                >
+                                                    <Share2 size={16} />
+                                                </button>
+                                            </Tooltip>
+                                        </div>
+                                        <div className='absolute bottom-4 right-4 z-[60]' onClick={(e) => e.stopPropagation()}>
+                                            <Tooltip text="Download">
+                                                <DownloadButton photoId={photo.id} photoUrls={photo.urls} className='z-[70]' />
+                                            </Tooltip>
+                                        </div>
+                                        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                            {photo.user.profile_image?.small && (
+                                                <Image src={photo.user.profile_image.small} alt={photo.user.name} width={32} height={32} className='rounded-full w-8 h-8 object-cover border-2 border-white/50' />
+                                            )}
+                                            <p className="text-white text-sm font-semibold drop-shadow-md">{photo.user.name}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </Masonry>
+                )}
+
+                <div ref={loadMoreRef} className="w-full py-10">
+                    {loadingMore && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+                            <PhotoSkeleton />
+                            <div className="hidden md:block"><PhotoSkeleton /></div>
+                            <div className="hidden xl:block"><PhotoSkeleton /></div>
+                        </div>
+                    )}
+                </div>
+
+                {
+                    photos.length === 0 && !loading && (
+                        <div className="text-center py-20">
+                            <p className="text-gray-500 dark:text-gray-400 text-lg">No photos found for &quot;{q}&quot;</p>
+                        </div>
+                    )
+                }
+
+                {
+                    selectedPhoto && (
+                        <>
+                            <AddToCollectionModal isOpen={isCollectionModalOpen} onClose={() => setIsCollectionModalOpen(false)} photo={selectedPhoto} />
+                            <SharePhoto isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} photo={selectedPhoto} />
+                        </>
+                    )
+                }
+
+                {/* Lightbox is now deprecated in favor of intercepted /photos route */}
+                <ScrollToTop />
+            </div>
+        </div>
     )
 }
 

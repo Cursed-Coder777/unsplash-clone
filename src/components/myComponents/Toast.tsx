@@ -10,6 +10,7 @@ interface ToastMessage {
     type: ToastType;
     message: string;
     duration?: number;
+    isExiting?: boolean;
 }
 
 let globalToast: any = null;
@@ -32,11 +33,18 @@ export default function ToastContainer() {
     useEffect(() => {
         globalToast = ({ message, type, duration }: Omit<ToastMessage, 'id'>) => {
             const id = Math.random().toString(36).substring(7);
-            setToasts(prev => [...prev, { id, type, message, duration }]);
+            setToasts(prev => [...prev, { id, type, message, duration, isExiting: false }]);
+
+            // Start exit animation before removing
+            const totalDuration = duration || 3000;
+            const exitTime = 500; // Match duration-500 from tailwind
 
             setTimeout(() => {
-                setToasts(prev => prev.filter(t => t.id !== id));
-            }, duration || 3000);
+                setToasts(prev => prev.map(t => t.id === id ? { ...t, isExiting: true } : t));
+                setTimeout(() => {
+                    setToasts(prev => prev.filter(t => t.id !== id));
+                }, exitTime);
+            }, totalDuration - exitTime);
         };
 
         return () => {
@@ -60,13 +68,13 @@ export default function ToastContainer() {
     const getColors = (type: ToastType) => {
         switch (type) {
             case 'success':
-                return 'bg-green-50 border-green-200 text-green-800';
+                return 'bg-white dark:bg-[#111111] border-green-500/20 text-gray-900 dark:text-gray-100';
             case 'error':
-                return 'bg-red-50 border-red-200 text-red-800';
+                return 'bg-white dark:bg-[#111111] border-red-500/20 text-gray-900 dark:text-gray-100';
             case 'warning':
-                return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+                return 'bg-white dark:bg-[#111111] border-yellow-500/20 text-gray-900 dark:text-gray-100';
             default:
-                return 'bg-blue-50 border-blue-200 text-blue-800';
+                return 'bg-white dark:bg-[#111111] border-blue-500/20 text-gray-900 dark:text-gray-100';
         }
     };
 
@@ -75,13 +83,18 @@ export default function ToastContainer() {
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border animate-slide-in ${getColors(toast.type)}`}
+                    className={`flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl border transition-all duration-500 ease-in-out ${getColors(toast.type)} ${toast.isExiting ? 'opacity-0 translate-x-20 scale-90' : 'animate-in slide-in-from-right-10'}`}
                 >
-                    {getIcon(toast.type)}
-                    <p className="text-sm font-medium">{toast.message}</p>
+                    <div className="flex-shrink-0">
+                        {getIcon(toast.type)}
+                    </div>
+                    <p className="text-[13px] font-semibold tracking-tight">{toast.message}</p>
                     <button
-                        onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-                        className="ml-2 opacity-60 hover:opacity-100 transition"
+                        onClick={() => {
+                            setToasts(prev => prev.map(t => t.id === toast.id ? { ...t, isExiting: true } : t));
+                            setTimeout(() => setToasts(prev => prev.filter(t => t.id !== toast.id)), 500);
+                        }}
+                        className="ml-4 opacity-40 hover:opacity-100 transition-opacity p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                     >
                         <X className="w-4 h-4" />
                     </button>

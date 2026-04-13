@@ -44,6 +44,11 @@ const userSchema = new mongoose.Schema({
         }],
         default: []
     },
+    downloadHistory: [{
+        photoId: { type: String, required: true },
+        downloadedAt: { type: Date, default: Date.now },
+        photoData: { type: Object, default: null }
+    }],
     otp: {
         code: { type: String },
         expiresAt: { type: Date }

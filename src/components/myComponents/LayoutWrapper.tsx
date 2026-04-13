@@ -11,11 +11,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   // Hide Navbar, Sidebar, and BottomNav on login and register pages
-  const isRegisterPage = pathname?.startsWith('/register');
+  const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/register');
 
-  if (isRegisterPage) {
+  if (isAuthPage) {
     return (
-      <div className="flex min-h-screen bg-white">
+      <div className="flex min-h-screen bg-background text-foreground transition-colors duration-300">
         <main className="flex-1 w-full">
           {children}
         </main>
@@ -25,7 +25,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* Sidebar - Hidden on small screens */}
       <div className="hidden lg:block lg:w-16 fixed left-0 top-0 h-full z-50">
         <Sidebar />
